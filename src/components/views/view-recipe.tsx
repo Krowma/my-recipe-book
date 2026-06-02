@@ -1,50 +1,46 @@
 import { useState } from 'react';
 
-import { FlatList, Platform, Pressable, StyleSheet } from 'react-native';
-import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { FlatList, Pressable, StyleSheet } from 'react-native';
 
 import { Recipe } from "@/types/recipe.types";
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from "@/hooks/use-theme";
+import { SymbolView } from 'expo-symbols';
 
+interface RecipeProps {
+    recipe: Recipe;
+    closeCallback: () => void;
+}
 
-export function ViewRecipe({recipe} : {recipe: Recipe}) {
+export function ViewRecipe({recipe, closeCallback} : RecipeProps) {
 
-    const safeAreaInsets = useSafeAreaInsets();
-    const insets = {
-        ...safeAreaInsets,
-        bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
-    };
     const theme = useTheme();
-    
-    const contentPlatformStyle = Platform.select({
-        android: {
-          paddingTop: insets.top,
-          paddingLeft: insets.left,
-          paddingRight: insets.right,
-          paddingBottom: insets.bottom,
-        },
-        web: {
-          paddingTop: Spacing.six,
-          paddingBottom: Spacing.four,
-        },
-    });
+    const [isInstructions, setIsInstructions] = useState(false);
 
     /**  
      *  Top and Bottom sections (declared in function to be used in FlatList because you can't put a FlatList inside a scrollview)
      */
-    const [isInstructions, setIsInstructions] = useState(false);
-
     function listHeader({name, image, tags} : Recipe) {
         return(
             <ThemedView style={styles.container}>
                 <ThemedView style={styles.titleContainer}>
                     {/*TODO image*/}
-                    <ThemedText type="subtitle">{name}</ThemedText>                      
+                    <Pressable
+                        style={({ pressed }) => pressed && styles.pressed}
+                        onPress={() => closeCallback()}>
+                            <SymbolView
+                                name={{ ios: 'chevron.left', android: 'chevron_left', web: 'chevron_left' }}
+                                size={23}
+                                weight="bold"
+                                tintColor={theme.text}
+                            />
+                    </Pressable> 
+                    <ThemedText type="subtitle">{name}</ThemedText> 
                 </ThemedView>
+
                 <ThemedView style={styles.tagsContainer}>
                     {
                         tags.map((element, index) => (
@@ -90,8 +86,7 @@ export function ViewRecipe({recipe} : {recipe: Recipe}) {
             <ThemedView style={styles.container}>
                 <FlatList
                 style={[styles.container, { backgroundColor: theme.background }]}
-                contentInset={insets}
-                contentContainerStyle={[styles.listContainer, contentPlatformStyle]}
+                contentContainerStyle={styles.listContainer}
                 data={recipe.instructions}
                 ListHeaderComponent={listHeader(recipe)}
                 ListFooterComponent={listFooter(recipe)}
@@ -113,8 +108,7 @@ export function ViewRecipe({recipe} : {recipe: Recipe}) {
             <ThemedView style={styles.container}>
                 <FlatList
                 style={[styles.container, { backgroundColor: theme.background }]}
-                contentInset={insets}
-                contentContainerStyle={[styles.listContainer, contentPlatformStyle]}
+                contentContainerStyle={styles.listContainer}
                 data={recipe.ingredients}
                 ListHeaderComponent={listHeader(recipe)}
                 ListFooterComponent={listFooter(recipe)}
@@ -135,6 +129,9 @@ const styles = StyleSheet.create({
         flexGrow: 1,
     },
     titleContainer: {
+        flexDirection: 'row',
+        alignItems: "center",
+        gap: Spacing.two,
         paddingHorizontal: Spacing.five,
         paddingVertical: Spacing.two,
     },

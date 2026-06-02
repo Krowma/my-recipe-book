@@ -1,24 +1,35 @@
-import { Platform, StyleSheet } from 'react-native';
+import { FlatList, Platform, Pressable, StyleSheet } from 'react-native';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { ViewRecipe } from '@/components/views/view-recipe';
+import { Recipe } from '@/types/recipe.types';
 
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 
-import { RecipeChocolateCake } from '@/mocking/mock-recipes';
+import { ThemedText } from '@/components/themed-text';
+import { ViewRecipe } from '@/components/views/view-recipe';
+import { RecipeChocolateCake, RecipePancake } from '@/mocking/mock-recipes';
+import { useState } from 'react';
+
 
 
 
 export default function TabTwoScreen() {
+
+    const theme = useTheme();
+    const [isRecipeOpen, setIsRecipeOpen] = useState(false);
+    const [openedRecipe, setOpenedRecipe] = useState<Recipe>();
+    
+    /**
+     * Platform safe area
+     */
     const safeAreaInsets = useSafeAreaInsets();
     const insets = {
         ...safeAreaInsets,
         bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
     };
-    const theme = useTheme();
-
+    
     const contentPlatformStyle = Platform.select({
         android: {
             paddingTop: insets.top,
@@ -32,73 +43,124 @@ export default function TabTwoScreen() {
         },
     });
 
-    let mockRecipe = RecipeChocolateCake;
 
-    return (
-        <ThemedView style={styles.container}>
-            {/*<ThemedView style={styles.titleContainer}>
-                <ThemedText type="subtitle">Recipe Book</ThemedText>
-            </ThemedView>*/}
+    /**
+     * Recipes data
+     */
+    let mockRecipes = [RecipeChocolateCake, RecipePancake];
+    const numColumns = 3;
 
+    function listHeader() {
+        return (
             <ThemedView style={styles.container}>
-                <ViewRecipe recipe={RecipeChocolateCake} />
+                {/* todo filter bar */}
             </ThemedView>
-        </ThemedView>
-    );
-  
+        );
+    }
+
+    /**
+     * Page components
+     */
+    function listFooter() {
+        return (
+            <ThemedView style={styles.container}>
+                {/* todo */}
+            </ThemedView>
+        );
+    }
+
+    const handleOpenRecipe = (recipe: Recipe) => {
+        setIsRecipeOpen(true);
+        setOpenedRecipe(recipe);
+    }
+
+    const handleCloseRecipe = () => {
+        setIsRecipeOpen(false);
+    }
+
+    if(isRecipeOpen && openedRecipe) {
+        return (
+            <ThemedView style={[styles.container, contentPlatformStyle]}>
+                <ViewRecipe recipe={openedRecipe} closeCallback={handleCloseRecipe} />
+            </ThemedView>
+        );
+    }
+    else {
+        return (
+            <ThemedView style={[styles.container, contentPlatformStyle]}>
+                <ThemedText type="subtitle" style={styles.titleContainer}>Recipe Book</ThemedText>
+                <FlatList
+                    style={[styles.container, { backgroundColor: theme.background }]}
+                    contentInset={insets}
+                    contentContainerStyle={styles.gridContainer}
+                    numColumns={numColumns}
+                    data={mockRecipes}
+                    ListHeaderComponent={listHeader()}
+                    ListFooterComponent={listFooter()}
+                    renderItem={({ item }) => (
+                        <ThemedView type="backgroundElement" style={styles.recipeCard}>
+                            <Pressable
+                                style={({ pressed }) => pressed && styles.pressed}
+                                onPress={() => handleOpenRecipe(item)}>
+                                    <ThemedText style={styles.recipeName}>{item.name}</ThemedText>
+                            </Pressable>
+                        </ThemedView>
+                    )}
+                />
+            </ThemedView>
+        );
+    }
 }
 
 
 const styles = StyleSheet.create({
-  scrollView: {
-    flex: 1,
-  },
-  contentContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-  },
-  container: {
-    maxWidth: MaxContentWidth,
-    flexDirection: "column"
-  },
-  titleContainer: {
-    gap: Spacing.three,
-    alignItems: 'center',
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.four,
-  },
-  centerText: {
-    textAlign: 'center',
-  },
-  pressed: {
-    opacity: 0.7,
-  },
-  linkButton: {
-    flexDirection: 'row',
-    paddingHorizontal: Spacing.four,
-    paddingVertical: Spacing.two,
-    borderRadius: Spacing.five,
-    justifyContent: 'center',
-    gap: Spacing.one,
-    alignItems: 'center',
-  },
-  sectionsWrapper: {
-    gap: Spacing.five,
-    paddingHorizontal: Spacing.four,
-    paddingTop: Spacing.three,
-  },
-  collapsibleContent: {
-    alignItems: 'center',
-  },
-  imageTutorial: {
-    width: '100%',
-    aspectRatio: 296 / 171,
-    borderRadius: Spacing.three,
-    marginTop: Spacing.two,
-  },
-  imageReact: {
-    width: 100,
-    height: 100,
-    alignSelf: 'center',
-  },
+    gridContainer: {
+        padding: Spacing.three,
+        gap: Spacing.four,
+    },
+    recipeCard: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+
+        padding: Spacing.two,
+        margin: 5,
+        borderRadius: Spacing.three,
+
+        maxWidth: '25%',
+    },
+
+    recipeName: {
+        fontWeight:"bold"
+    },
+
+    contentContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+    },
+    container: {
+        flex: 1,
+        maxWidth: MaxContentWidth,
+        flexDirection: "column"
+    },
+    titleContainer: {
+        gap: Spacing.three,
+        alignItems: 'center',
+        paddingHorizontal: Spacing.four,
+        paddingVertical: Spacing.four,
+    },
+    centerText: {
+        textAlign: 'center',
+    },
+    pressed: {
+        opacity: 0.7,
+    },
+    sectionsWrapper: {
+        gap: Spacing.five,
+        paddingHorizontal: Spacing.four,
+        paddingTop: Spacing.three,
+    },
+    collapsibleContent: {
+        alignItems: 'center',
+    },
 });

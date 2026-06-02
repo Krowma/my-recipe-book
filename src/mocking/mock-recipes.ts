@@ -70,3 +70,71 @@ export const RecipeChocolateCake : Recipe = {
     ],
     notes: "For brevity sake some ingredients and steps of this mock recipe have been removed from the original. Do not attempt this recipe at home."
 } as const;
+
+export const RecipePancake : Recipe = {
+    uniqueId: "MOCK_PANCAKE",
+    name: "Old Fashioned Pancakes",
+    image: "none",
+    tags: [
+        "easy",
+        "dessert",
+        "mock"
+    ],
+    servings: 8,
+    duration: 20,
+    ingredients:[
+        {
+            name: "white sugar",
+            quantity : 1,
+            unit: "ts"
+        },
+        {
+            name: "all-puporsed flour",
+            quantity : 1.5,
+            unit: "cups"
+        },
+        {
+            name: "baking powder",
+            quantity : 3.5,
+            unit: "ts"
+        },
+        {
+            name: "salt",
+            quantity : 0.25,
+            unit: "ts"
+        },
+        {
+            name: "milk",
+            quantity : 1.25,
+            unit: "cups"
+        },
+        {
+            name: "butter",
+            quantity : 3,
+            unit: "ts"
+        },
+        {
+            name: "large egg",
+            quantity : 1,
+            unit: " "
+        }
+    ],
+    instructions:[
+        {
+            description: "Sift flour, baking powder, sugar, and salt together in a large bowl. Make a well in the center and add milk, melted butter, and egg; mix until smooth.",
+            hasTimer: false,
+            timerDuration: 0
+        },
+        {
+            description: "Heat a lightly oiled griddle or pan over medium-high heat. Pour or scoop the batter onto the griddle, using approximately 1/4 cup for each pancake; cook until bubbles form and the edges are dry, about 2 to 3 minutes.",
+            hasTimer: true,
+            timerDuration: 3
+        },
+        {
+            description: "Flip and cook until browned on the other side. Repeat with remaining batter.",
+            hasTimer: false,
+            timerDuration: 0
+        }
+    ],
+    notes: "For brevity sake some ingredients and steps of this mock recipe have been removed from the original. Do not attempt this recipe at home."
+} as const;
