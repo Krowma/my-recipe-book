@@ -1,18 +1,16 @@
-import { FlatList, Platform, Pressable, StyleSheet } from 'react-native';
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-import { Recipe } from '@/types/recipe.types';
-
+import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import { ViewRecipe } from '@/components/views/view-recipe';
 import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
-
-import { ThemedText } from '@/components/themed-text';
-import { ViewRecipe } from '@/components/views/view-recipe';
-import { RecipeChocolateCake, RecipePancake } from '@/mocking/mock-recipes';
+import { Recipe } from '@/types/recipe.types';
 import { useState } from 'react';
+import { FlatList, Platform, Pressable, StyleSheet } from 'react-native';
+import Animated, { FadeIn } from 'react-native-reanimated';
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 
+import { RecipeChocolateCake, RecipePancake } from '@/mocking/mock-recipes';
 
 
 export default function TabTwoScreen() {
@@ -81,7 +79,9 @@ export default function TabTwoScreen() {
     if(isRecipeOpen && openedRecipe) {
         return (
             <ThemedView style={[styles.container, contentPlatformStyle]}>
-                <ViewRecipe recipe={openedRecipe} closeCallback={handleCloseRecipe} />
+                <Animated.View entering={FadeIn.duration(100)} /*exiting={FadeOut.duration(200)}*/>
+                    <ViewRecipe recipe={openedRecipe} closeCallback={handleCloseRecipe} />
+                </Animated.View>
             </ThemedView>
         );
     }
@@ -98,13 +98,11 @@ export default function TabTwoScreen() {
                     ListHeaderComponent={listHeader()}
                     ListFooterComponent={listFooter()}
                     renderItem={({ item }) => (
-                        <ThemedView type="backgroundElement" style={styles.recipeCard}>
-                            <Pressable
-                                style={({ pressed }) => pressed && styles.pressed}
-                                onPress={() => handleOpenRecipe(item)}>
-                                    <ThemedText style={styles.recipeName}>{item.name}</ThemedText>
-                            </Pressable>
-                        </ThemedView>
+                        <Pressable
+                            style={({ pressed }) => [styles.recipeCard, { backgroundColor: theme['backgroundElement']}, pressed && styles.pressed]}
+                            onPress={() => handleOpenRecipe(item)}>
+                                <ThemedText style={styles.recipeName}>{item.name}</ThemedText>
+                        </Pressable>
                     )}
                 />
             </ThemedView>

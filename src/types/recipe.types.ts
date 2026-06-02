@@ -1,6 +1,6 @@
 
 
-export type Unit = " " | "g" | "kg" | "ml" | "cups" | "ts";
+export type Unit = "" | "g" | "kg" | "ml" | "cups" | "ts";
 
 export type Ingredient = {
     name: string;

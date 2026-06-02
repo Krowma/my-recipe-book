@@ -1,5 +1,7 @@
 import { useState } from 'react';
 
+import Slider from '@react-native-community/slider';
+import Fraction from 'fraction.js';
 import { FlatList, Pressable, StyleSheet } from 'react-native';
 
 import { Recipe } from "@/types/recipe.types";
@@ -8,6 +10,7 @@ import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useTheme } from "@/hooks/use-theme";
+
 import { SymbolView } from 'expo-symbols';
 
 interface RecipeProps {
@@ -19,6 +22,7 @@ export function ViewRecipe({recipe, closeCallback} : RecipeProps) {
 
     const theme = useTheme();
     const [isInstructions, setIsInstructions] = useState(false);
+    const [servingSlider, setServingSlider] = useState(recipe.servings);
 
     /**  
      *  Top and Bottom sections (declared in function to be used in FlatList because you can't put a FlatList inside a scrollview)
@@ -64,7 +68,24 @@ export function ViewRecipe({recipe, closeCallback} : RecipeProps) {
                         onPress={() => setIsInstructions(() => true)}>
                         <ThemedText style={[styles.sectionTitle, isInstructions && styles.sectionTitlePressed]}>Instructions</ThemedText>
                     </Pressable>
-                </ThemedView>    
+                </ThemedView>
+
+                {!isInstructions &&
+                    <ThemedView style={styles.sliderContainer}> 
+                        <ThemedText type="smallBold">Servings {servingSlider}</ThemedText>
+                        <Slider
+                            style={styles.slider}
+                            minimumValue={1}
+                            maximumValue={20}
+                            step={1}
+                            value={servingSlider}
+                            onValueChange={(value : number) => setServingSlider(value)}
+                            minimumTrackTintColor="#1FB28A"
+                            maximumTrackTintColor="#D3D3D3"
+                            thumbTintColor="#1FB28A"
+                        />
+                    </ThemedView>
+                }    
             </ThemedView>
         );
     }
@@ -75,6 +96,12 @@ export function ViewRecipe({recipe, closeCallback} : RecipeProps) {
                 <ThemedText type="small">{notes}</ThemedText>
             </ThemedView>
         );
+    }
+
+    let fractionSring = (floatValue : number) => {
+        const fraction = new Fraction(floatValue);
+        const simpleFraction = fraction.simplify(0.1).toFraction(true);
+        return `${simpleFraction}`;
     }
     
     /**  
@@ -100,25 +127,24 @@ export function ViewRecipe({recipe, closeCallback} : RecipeProps) {
                 )}
             /> 
             </ThemedView>
-            
         )
     }
-    else{
+    else {
         return (
             <ThemedView style={styles.container}>
                 <FlatList
-                style={[styles.container, { backgroundColor: theme.background }]}
-                contentContainerStyle={styles.listContainer}
-                data={recipe.ingredients}
-                ListHeaderComponent={listHeader(recipe)}
-                ListFooterComponent={listFooter(recipe)}
-                renderItem={({ item }) => (
-                    <ThemedView style={styles.ingredient}>
-                        <ThemedText>{item.name} {item.quantity} {item.unit}</ThemedText>
-                    </ThemedView>
-                )}
-            />
-            </ThemedView>
+                    style={[styles.container, { backgroundColor: theme.background }]}
+                    contentContainerStyle={styles.listContainer}
+                    data={recipe.ingredients}
+                    ListHeaderComponent={listHeader(recipe)}
+                    ListFooterComponent={listFooter(recipe)}
+                    renderItem={({ item }) => (
+                        <ThemedView style={styles.ingredient}>
+                            <ThemedText>{fractionSring(item.quantity * (servingSlider/recipe.servings))} {item.unit} of {item.name} </ThemedText>
+                        </ThemedView>
+                    )}
+                />
+            </ThemedView>    
         );
     }
 }
@@ -127,6 +153,7 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: "column",
         flexGrow: 1,
+        backgroundColor: "white"
     },
     titleContainer: {
         flexDirection: 'row',
@@ -142,6 +169,13 @@ const styles = StyleSheet.create({
         paddingTop: Spacing.four,
         paddingBottom: Spacing.two,
     },
+    sliderContainer: {
+        flexDirection: 'row',
+        alignItems: "center",
+        gap: Spacing.two,
+        paddingHorizontal: Spacing.five,
+        maxWidth: MaxContentWidth,
+    },
     tagsContainer: {
         gap: Spacing.two,
         flexDirection: 'row',
@@ -153,7 +187,6 @@ const styles = StyleSheet.create({
     notesContainer: {
         paddingHorizontal: Spacing.three,
         paddingVertical: Spacing.two,
-        maxWidth: MaxContentWidth,
         flexGrow: 1,
         flexDirection: 'column',
         justifyContent: 'center',
@@ -181,6 +214,9 @@ const styles = StyleSheet.create({
         paddingVertical: Spacing.two,
     },
 
+    slider: {
+        width: MaxContentWidth * 0.3,
+    },
     pressed: {
         opacity: 0.7,
     },

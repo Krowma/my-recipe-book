@@ -11,7 +11,7 @@ export const RecipeChocolateCake : Recipe = {
         "dessert",
         "mock"
     ],
-    servings: 24,
+    servings: 4,
     duration: 60,
     ingredients:[
         {
@@ -32,7 +32,7 @@ export const RecipeChocolateCake : Recipe = {
         {
             name: "large eggs",
             quantity : 2,
-            unit: " "
+            unit: ""
         },
         {
             name: "vanilla extract",
@@ -116,7 +116,7 @@ export const RecipePancake : Recipe = {
         {
             name: "large egg",
             quantity : 1,
-            unit: " "
+            unit: ""
         }
     ],
     instructions:[
