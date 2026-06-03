@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-import Slider from '@react-native-community/slider';
+import Slider from '@expo/ui/community/slider';
 import Fraction from 'fraction.js';
 import { FlatList, Pressable, StyleSheet } from 'react-native';
 

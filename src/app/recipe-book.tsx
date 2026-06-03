@@ -13,7 +13,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { RecipeChocolateCake, RecipePancake } from '@/mocking/mock-recipes';
 
 
-export default function TabTwoScreen() {
+export default function RecipeBookScreen() {
 
     const theme = useTheme();
     const [isRecipeOpen, setIsRecipeOpen] = useState(false);
