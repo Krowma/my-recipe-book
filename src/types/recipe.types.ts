@@ -25,3 +25,16 @@ export type Recipe = {
     instructions: Instruction[];
     notes: string;
 }
+
+// Represents how data is stored in the database
+export type RawRecipeRow = {
+    uniqueId: string;
+    name: string;
+    image: string;
+    tags: string;
+    servings: number;
+    duration: number;
+    ingredients: string;
+    instructions: string;
+    notes: string;
+}
