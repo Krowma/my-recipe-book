@@ -5,7 +5,7 @@ export type Unit = "" | "g" | "kg" | "ml" | "cups" | "ts";
 export type Ingredient = {
     name: string;
     quantity: number;
-    unit: Unit;
+    unit: string;
 }
 
 export type Instruction = {
