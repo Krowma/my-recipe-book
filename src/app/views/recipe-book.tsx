@@ -2,17 +2,15 @@ import { ViewRecipe } from '@/app/views/view-recipe';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
+import { useDatabaseRecipes } from '@/hooks/use-database-recipes';
 import { useTheme } from "@/hooks/use-theme";
 import { Recipe } from '@/types/recipe.types';
-import { useEffect, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
+import { useCallback, useState } from 'react';
 import { FlatList, Platform, Pressable, StyleSheet } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-
-import { seedFakeUsers } from '@/database/mock-data/mock-recipes-db';
-import { localDeleteRecipe, localFetchAllRecipe } from '@/database/queries/recipe-queries';
-import { useSQLiteContext } from 'expo-sqlite';
 
 
 export default function RecipeBookScreen() {
@@ -20,7 +18,7 @@ export default function RecipeBookScreen() {
     const theme = useTheme();
     const db = useSQLiteContext();
     
-    const [recipes, setRecipes] = useState<Recipe[]>([]); // move to redux to avoid fetching db every time we open this page ?
+    const { recipes, isLoading, fetchRecipes, deleteRecipe } = useDatabaseRecipes();
     
     const [isRecipeOpen, setIsRecipeOpen] = useState(false);
     const [openedRecipe, setOpenedRecipe] = useState<Recipe>(); 
@@ -59,44 +57,14 @@ export default function RecipeBookScreen() {
     /**
      * Database
      */
-    const bGenerateMockData = true;
-    const countMockRecipe = 10;
-    async function fetchMockRecipeData() {
-        await seedFakeUsers(countMockRecipe).catch((error) => {
-            console.error('[mock] Failed to seed database:', error);
-        });
-        fetchRecipes();
-    }
-
-    async function fetchRecipes() {
-        const result = await localFetchAllRecipe(db);
-        setRecipes(result);
-    }
-
-    async function deleteRecipe(id: string) {
-        setRecipes(prevItems => prevItems.filter(item => item.uniqueId !== id));
-        
-        try{
-            await localDeleteRecipe(db, id);
+    useFocusEffect(
+        useCallback(() => {
             fetchRecipes();
-        } catch(error: unknown){
-            if (error instanceof Error) {
-                console.error("An error occured while deleteing recipe form the db: " + error.message); 
-                console.error(error.stack);
-            } else {
-                console.error("An error occured while deleteing recipe form the db:", String(error));
-            }
-        }
-    }
-
-    useEffect(() => {
-        if(bGenerateMockData) {
-            fetchMockRecipeData();
-        }
-        else {
-            fetchRecipes();
-        }
-    }, []);
+            return () => {
+                // Screen lost focus: Cleanup resources here
+            };
+        }, [])
+    );
 
     /**
      * Page components

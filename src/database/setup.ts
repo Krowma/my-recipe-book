@@ -1,3 +1,4 @@
+import { seedFakeUsers } from '@/database/mock-data/mock-recipes-db';
 import { RECIPE_SCHEMA } from '@/database/schema';
 import { SQLiteDatabase } from 'expo-sqlite';
 
@@ -5,6 +6,9 @@ import { SQLiteDatabase } from 'expo-sqlite';
 export async function setupDatabase(db: SQLiteDatabase) 
 {
     const DATABASE_VERSION = 1;
+    
+    const USE_MOCK_DATA = true;
+    const COUNT_MOCK_DATA = 10;
 
     const fetchResult = await db.getFirstAsync<{user_version: number}>('PRAGMA user_version;'); // fetch db metadata (PRAGMA) user_version
     let currentDbVersion = fetchResult?.user_version ?? 0;
@@ -16,7 +20,19 @@ export async function setupDatabase(db: SQLiteDatabase)
     
     if (currentDbVersion === 0) {
         // first initialization : create tables
-        initialize(db);
+        try {
+            await db.execAsync(RECIPE_SCHEMA);
+            console.log('[db] Database schemas verified and initialized successfully.');
+
+            if(USE_MOCK_DATA){
+                await seedFakeUsers(COUNT_MOCK_DATA).catch((error) => {
+                    console.error('[db][mock] Failed to seed database:', error);
+                });
+            }
+        } catch (error) {
+            console.error('[db] Critical Error: Failed to initialize local database:', error);
+            throw error;
+        }
     }
     else if(currentDbVersion < DATABASE_VERSION){
         // not up to date : needs migration
@@ -25,16 +41,6 @@ export async function setupDatabase(db: SQLiteDatabase)
     }
 
     await db.execAsync(`PRAGMA user_version = ${DATABASE_VERSION};`);
-}
-
-async function initialize(db: SQLiteDatabase) {
-    try {
-        await db.execAsync(RECIPE_SCHEMA);
-        console.log('[db] Database schemas verified and initialized successfully.');
-    } catch (error) {
-        console.error('[db] Critical Error: Failed to initialize local database:', error);
-        throw error;
-    }
 }
 
 async function migrate(db: SQLiteDatabase) {
