@@ -1,12 +1,12 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { FormListElement } from "@/components/ui/form-list";
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import { Recipe } from "@/types/recipe.types";
 import { SymbolView } from "expo-symbols";
 import { Controller, FieldValues, Resolver, useForm } from "react-hook-form";
 import { Button, Pressable, StyleSheet, TextInput } from 'react-native';
-import { FormListElement } from "../ui/form-list";
 
 
 const resolver: Resolver<Recipe> = async (recipe) => {

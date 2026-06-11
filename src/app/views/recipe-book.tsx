@@ -1,6 +1,6 @@
+import { ViewRecipe } from '@/app/views/view-recipe';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { ViewRecipe } from '@/components/views/view-recipe';
 import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import { Recipe } from '@/types/recipe.types';
@@ -10,8 +10,8 @@ import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 
-import { localDeleteRecipe, localFetchAllRecipe } from '@/database/local-database';
-import { seedFakeUsers } from '@/mocking/mock-recipes-db';
+import { seedFakeUsers } from '@/database/mock-data/mock-recipes-db';
+import { localDeleteRecipe, localFetchAllRecipe } from '@/database/queries/recipe-queries';
 import { useSQLiteContext } from 'expo-sqlite';
 
 

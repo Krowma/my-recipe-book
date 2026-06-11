@@ -1,5 +1,5 @@
+import { ViewRecipeForm } from '@/app/views/view-recipe-form';
 import { ThemedView } from '@/components/themed-view';
-import { ViewRecipeForm } from '@/components/views/view-recipe-form';
 import { BottomTabInset, Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import { Platform, StyleSheet } from "react-native";

@@ -20,15 +20,15 @@ export default function AppTabs() {
         />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="explore">
+      {/*<NativeTabs.Trigger name="explore">
         <NativeTabs.Trigger.Label>Explore</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
           src={require('@/assets/images/tabIcons/explore.png')}
           renderingMode="template"
         />
-      </NativeTabs.Trigger>
+      </NativeTabs.Trigger>*/}
 
-      <NativeTabs.Trigger name="recipe-add-form">
+      <NativeTabs.Trigger name="views/recipe-add-form">
         <NativeTabs.Trigger.Label>Add a Recipe</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
           src={require('@/assets/images/tabIcons/icons-add-24.png')}
@@ -36,7 +36,7 @@ export default function AppTabs() {
         />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="recipe-book">
+      <NativeTabs.Trigger name="views/recipe-book">
         <NativeTabs.Trigger.Label>Recipes</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
           src={require('@/assets/images/tabIcons/icons-books-25.png')}
