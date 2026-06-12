@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 
 import Slider from '@expo/ui/community/slider';
 import Fraction from 'fraction.js';
@@ -9,9 +9,12 @@ import { Recipe } from "@/types/recipe.types";
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { useDatabaseDetails } from '@/hooks/use-database-details';
 import { useTheme } from "@/hooks/use-theme";
-
+import { useFocusEffect } from 'expo-router';
+import { useSQLiteContext } from 'expo-sqlite';
 import { SymbolView } from 'expo-symbols';
+
 
 interface RecipeProps {
     recipe: Recipe;
@@ -21,13 +24,29 @@ interface RecipeProps {
 export function ViewRecipe({recipe, closeCallback} : RecipeProps) {
 
     const theme = useTheme();
+
+    const db = useSQLiteContext();
+    const { tags, ingredients, instructions, notes, isLoading, fetchDetails } = useDatabaseDetails();
+
     const [isInstructions, setIsInstructions] = useState(false);
-    const [servingSlider, setServingSlider] = useState(recipe.servings);
+    const [servingSlider, setServingSlider] = useState(recipe.serving_count);
+
+    /**
+     * Database
+     */
+    useFocusEffect(
+        useCallback(() => {
+            fetchDetails(recipe.id);
+            return () => {
+                // Screen lost focus: Cleanup resources here
+            };
+        }, [])
+    );
 
     /**  
      *  Top and Bottom sections (declared in function to be used in FlatList because you can't put a FlatList inside a scrollview)
      */
-    function listHeader({name, image, tags} : Recipe) {
+    function listHeader({name, image} : Recipe) {
         return(
             <ThemedView style={styles.container}>
                 <ThemedView style={styles.titleContainer}>
@@ -49,7 +68,7 @@ export function ViewRecipe({recipe, closeCallback} : RecipeProps) {
                     {
                         tags.map((element, index) => (
                             <ThemedView key={index} type="backgroundElement" style={styles.tagElement}>
-                                <ThemedText type="small">{element}</ThemedText>
+                                <ThemedText type="small">{element.name}</ThemedText>
                             </ThemedView>
                         ))
                     } 
@@ -90,10 +109,14 @@ export function ViewRecipe({recipe, closeCallback} : RecipeProps) {
         );
     }
 
-    function listFooter({notes} : Recipe) {
+    function listFooter() {
         return(
             <ThemedView style={styles.notesContainer}>
-                <ThemedText type="small">{notes}</ThemedText>
+                {
+                    notes.map((element, index) => (
+                        <ThemedText key={index} type="small">{element.content}</ThemedText>
+                    ))
+                }
             </ThemedView>
         );
     }
@@ -114,14 +137,14 @@ export function ViewRecipe({recipe, closeCallback} : RecipeProps) {
                 <FlatList
                 style={[styles.container, { backgroundColor: theme.background }]}
                 contentContainerStyle={styles.listContainer}
-                data={recipe.instructions}
+                data={instructions}
                 ListHeaderComponent={listHeader(recipe)}
-                ListFooterComponent={listFooter(recipe)}
+                ListFooterComponent={listFooter()}
                 renderItem={({ item }) => (
                     <ThemedView style={styles.instruction}>
                         <ThemedText>{item.description}</ThemedText>
                         {
-                            item.hasTimer && <ThemedText>Timer {item.timerDuration} min</ThemedText>
+                            Boolean(item.has_timer) && <ThemedText>Timer {item.timer_duration} min</ThemedText>
                         }
                     </ThemedView>
                 )}
@@ -135,12 +158,12 @@ export function ViewRecipe({recipe, closeCallback} : RecipeProps) {
                 <FlatList
                     style={[styles.container, { backgroundColor: theme.background }]}
                     contentContainerStyle={styles.listContainer}
-                    data={recipe.ingredients}
+                    data={ingredients}
                     ListHeaderComponent={listHeader(recipe)}
-                    ListFooterComponent={listFooter(recipe)}
+                    ListFooterComponent={listFooter()}
                     renderItem={({ item }) => (
                         <ThemedView style={styles.ingredient}>
-                            <ThemedText>{fractionSring(item.quantity * (servingSlider/recipe.servings))} {item.unit} of {item.name} </ThemedText>
+                            <ThemedText>{fractionSring(item.quantity * (servingSlider/recipe.serving_count))} {item.unit} of {item.name} </ThemedText>
                         </ThemedView>
                     )}
                 />

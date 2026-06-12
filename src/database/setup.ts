@@ -1,4 +1,4 @@
-import { seedFakeUsers } from '@/database/mock-data/mock-recipes-db';
+import { seedFakeData } from '@/database/mock-data/mock-recipes-db';
 import { RECIPE_SCHEMA } from '@/database/schema';
 import { SQLiteDatabase } from 'expo-sqlite';
 
@@ -25,7 +25,7 @@ export async function setupDatabase(db: SQLiteDatabase)
             console.log('[db] Database schemas verified and initialized successfully.');
 
             if(USE_MOCK_DATA){
-                await seedFakeUsers(COUNT_MOCK_DATA).catch((error) => {
+                await seedFakeData(COUNT_MOCK_DATA).catch((error) => {
                     console.error('[db][mock] Failed to seed database:', error);
                 });
             }

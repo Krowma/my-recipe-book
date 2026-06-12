@@ -24,6 +24,18 @@ export default function RecipeBookScreen() {
     const [openedRecipe, setOpenedRecipe] = useState<Recipe>(); 
 
     const [isInDeleteMode, setIsInDeleteMode] = useState(false);
+
+    /**
+     * Database
+     */
+    useFocusEffect(
+        useCallback(() => {
+            fetchRecipes();
+            return () => {
+                // Screen lost focus: Cleanup resources here
+            };
+        }, [])
+    );
     
     /**
      * Platform safe area
@@ -47,25 +59,6 @@ export default function RecipeBookScreen() {
         },
     });
 
-
-    /**
-     * grid parameters
-     */
-    const numColumns = 3;
-
-    
-    /**
-     * Database
-     */
-    useFocusEffect(
-        useCallback(() => {
-            fetchRecipes();
-            return () => {
-                // Screen lost focus: Cleanup resources here
-            };
-        }, [])
-    );
-
     /**
      * Page components
      */
@@ -87,7 +80,7 @@ export default function RecipeBookScreen() {
 
     const handleRecipePressed = (recipe: Recipe) => {
         if(isInDeleteMode){
-            deleteRecipe(recipe.uniqueId);
+            deleteRecipe(recipe.id);
         }
         else{
             setIsRecipeOpen(true);
@@ -98,6 +91,11 @@ export default function RecipeBookScreen() {
     const handleCloseRecipe = () => {
         setIsRecipeOpen(false);
     }
+
+    /**
+     * List display
+     */
+    const numColumns = 3;
 
     if(isRecipeOpen && openedRecipe) {
         return (

@@ -1,5 +1,5 @@
 import { RECIPE_QUERIES } from '@/database/queries/recipe-queries';
-import { RawRecipeRow, Recipe } from '@/types/recipe.types';
+import { Recipe } from '@/types/recipe.types';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useState } from 'react';
 
@@ -14,21 +14,18 @@ export function useDatabaseRecipes() {
     const fetchRecipes = useCallback(async (selectedTags : string[] = []) => {
         setIsLoading(true);
         try {
-            let result : RawRecipeRow[] = [];
+            let result : Recipe[] = [];
             if (selectedTags.length === 0) {
-                result = await db.getAllAsync<RawRecipeRow>(RECIPE_QUERIES.GET_ALL_RECIPES); // TODO will want to fetch by batch of x recipe in the future to handle big db
+                result = await db.getAllAsync<Recipe>(RECIPE_QUERIES.GET_ALL_RECIPES); // TODO will want to fetch by batch of x recipe in the future to handle big db
+                /*result.map(e => {
+                    console.log("recipe = { name:" + e.name + ", serv:" + e.serving_count + ", duration:" + e.duration + " }");
+                });*/
+                
             } else {
                 // TODO Multi-tag filter query
             }
-
-            let recipes = result.map(row => ({
-                ...row,
-                tags: row.tags ? JSON.parse(row.tags) : [], // Safe fallback to empty array
-                ingredients: row.ingredients? JSON.parse(row.ingredients) : [],
-                instructions: row.instructions? JSON.parse(row.instructions) : []
-            }));
-
-            setRecipes(recipes);
+            
+            setRecipes(result);
         } catch (error) {
             console.error("[db] Failed to fetch recipes", error);
         } finally {
