@@ -7,10 +7,20 @@ export const RECIPE_QUERIES = {
             ORDER BY name;
     `,
 
+    GET_RECIPES_WITH_TAGS: (placeholders: string, tagCount: number) =>`
+        SELECT r.id, r.name, r.image, r.serving_count, r.duration 
+            FROM recipes r
+            JOIN recipe_tags rt ON rt.recipe_id = r.id
+            JOIN tags t ON rt.tag_id = t.id
+            WHERE t.id IN (${placeholders})
+            GROUP BY r.id
+            HAVING COUNT(DISTINCT t.id) = ${tagCount};
+    `,
+
     DELETE_RECIPE:`
         DELETE 
             FROM recipes 
-            WHERE uniqueId = ?;
+            WHERE id = ?;
     `,
 
     INSERT_RECIPE:`

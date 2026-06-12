@@ -1,13 +1,13 @@
 import { ViewRecipe } from '@/app/views/view-recipe';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
+import FilterBar from '@/components/ui/filter-bar';
 import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
 import { useDatabaseRecipes } from '@/hooks/use-database-recipes';
 import { useTheme } from "@/hooks/use-theme";
-import { Recipe } from '@/types/recipe.types';
+import { Recipe, Tag } from '@/types/recipe.types';
 import { useFocusEffect } from 'expo-router';
-import { useSQLiteContext } from 'expo-sqlite';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FlatList, Platform, Pressable, StyleSheet } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -16,9 +16,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 export default function RecipeBookScreen() {
 
     const theme = useTheme();
-    const db = useSQLiteContext();
     
-    const { recipes, isLoading, fetchRecipes, deleteRecipe } = useDatabaseRecipes();
+    const { recipes, fetchRecipes, deleteRecipe } = useDatabaseRecipes();
+
+    const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
     
     const [isRecipeOpen, setIsRecipeOpen] = useState(false);
     const [openedRecipe, setOpenedRecipe] = useState<Recipe>(); 
@@ -36,6 +37,12 @@ export default function RecipeBookScreen() {
             };
         }, [])
     );
+
+    useEffect(() => {
+        fetchRecipes(selectedTags);
+        
+        return () => { };
+    }, [selectedTags]);
     
     /**
      * Platform safe area
@@ -65,7 +72,7 @@ export default function RecipeBookScreen() {
     function listHeader() {
         return (
             <ThemedView style={styles.container}>
-                {/* todo filter bar */}
+                <FilterBar selectedTags={selectedTags} setSelectedTags={setSelectedTags}/>
             </ThemedView>
         );
     }
@@ -195,6 +202,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: Spacing.four,
         paddingVertical: Spacing.four,
     },
+
     centerText: {
         textAlign: 'center',
     },

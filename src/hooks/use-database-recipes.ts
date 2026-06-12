@@ -1,5 +1,5 @@
 import { RECIPE_QUERIES } from '@/database/queries/recipe-queries';
-import { Recipe } from '@/types/recipe.types';
+import { Recipe, Tag } from '@/types/recipe.types';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useState } from 'react';
 
@@ -11,7 +11,7 @@ export function useDatabaseRecipes() {
     /**
      * Get all the recipes from the database.
      */
-    const fetchRecipes = useCallback(async (selectedTags : string[] = []) => {
+    const fetchRecipes = useCallback(async (selectedTags : Tag[] = []) => {
         setIsLoading(true);
         try {
             let result : Recipe[] = [];
@@ -22,7 +22,12 @@ export function useDatabaseRecipes() {
                 });*/
                 
             } else {
-                // TODO Multi-tag filter query
+                const placeholders = selectedTags.map(() => '?').join(', ');
+                const slectedTagIds = selectedTags.map((t) => t.id);
+                result = await db.getAllAsync<Recipe>(RECIPE_QUERIES.GET_RECIPES_WITH_TAGS(placeholders, selectedTags.length), slectedTagIds);
+                /*result.map(e => {
+                    console.log("recipe = { name:" + e.name + ", serv:" + e.serving_count + ", duration:" + e.duration + " }");
+                });*/
             }
             
             setRecipes(result);
