@@ -142,7 +142,7 @@ export function ViewRecipe({recipe, closeCallback} : RecipeProps) {
                 ListFooterComponent={listFooter()}
                 renderItem={({ item }) => (
                     <ThemedView style={styles.instruction}>
-                        <ThemedText>{item.description}</ThemedText>
+                        <ThemedText>{item.step_number}. {item.description}</ThemedText>
                         {
                             Boolean(item.has_timer) && <ThemedText>Timer {item.timer_duration} min</ThemedText>
                         }

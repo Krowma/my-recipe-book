@@ -1,15 +1,20 @@
 import { ViewRecipeForm } from '@/app/views/view-recipe-form';
 import { ThemedView } from '@/components/themed-view';
 import { BottomTabInset, Spacing } from "@/constants/theme";
-import { useTheme } from "@/hooks/use-theme";
+import { useDatabaseFormValidation } from '@/hooks/use-database-form-validation';
+import { useDatabaseRecipes } from '@/hooks/use-database-recipes';
+import { RecipeFormValues } from '@/types/recipe.types';
+import { useRouter } from 'expo-router';
 import { Platform, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 
 
 export default function AddRecipeScreen() {
+    const router = useRouter();
 
-    const theme = useTheme();
+    const { createRecipe } = useDatabaseRecipes();
+    const { validateTags, validateIngredients } = useDatabaseFormValidation();
     
     /**
      * Platform safe area
@@ -34,13 +39,25 @@ export default function AddRecipeScreen() {
     });
 
     const handleCloseCallback = () => {
-        // TODO redirect to recipe book
-        console.log("TODO redirect to recipe book !")
+        router.navigate('/views/recipe-book');
+    }
+
+    const handleSubmitCallback = (data: RecipeFormValues) => {
+        handleSubmitAsync(data);
+    }
+
+    const handleSubmitAsync = async (data: RecipeFormValues) => {
+        // Make sure ingredients and tags that already exist in the database use the correct id
+        await validateTags(data.tags);
+        await validateIngredients(data.ingredients);
+
+        await createRecipe(data.recipe, data.tags, data.ingredients, data.instructions, data.notes);
+        router.navigate('/views/recipe-book');
     }
 
     return(
         <ThemedView style={[styles.container, contentPlatformStyle]}>
-            <ViewRecipeForm closeCallback={handleCloseCallback}/>
+            <ViewRecipeForm closeCallback={handleCloseCallback} submitCallback={handleSubmitCallback}/>
         </ThemedView>
     );
 }

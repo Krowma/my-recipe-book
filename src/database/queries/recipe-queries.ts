@@ -25,6 +25,18 @@ export const RECIPE_QUERIES = {
 
     INSERT_RECIPE:`
         INSERT INTO recipes (id, name, image, serving_count, duration)
-            VALUES (?, ?, ?, ?, ?);
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(id)
+            DO UPDATE SET 
+                name = excluded.name,
+                image = excluded.image,
+                serving_count = excluded.serving_count,
+                duration = excluded.duration;
+    `,
+
+    UPDATE_RECIPE:`
+        UPDATE recipes 
+        SET name = ?, image = ?, serving_count = ?, duration = ?
+        WHERE id = ?;
     `
 }

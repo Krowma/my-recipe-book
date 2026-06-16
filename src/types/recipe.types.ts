@@ -35,3 +35,11 @@ export type Note = {
     content: string;
     created_at: string;
 }
+
+export interface RecipeFormValues {
+    recipe: Recipe;
+    tags: Tag[];
+    ingredients: Ingredient[];
+    instructions: Instruction[];
+    notes: Note[];
+}
