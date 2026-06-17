@@ -6,8 +6,7 @@ import FormListNotes from "@/components/ui/form-list-notes";
 import FormListTags from "@/components/ui/form-list-tags";
 import { BottomTabInset, Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
-import { Recipe, RecipeFormValues } from "@/types/recipe.types";
-import { randomUUID } from "expo-crypto";
+import { Ingredient, Instruction, Note, Recipe, RecipeFormValues, Tag } from "@/types/recipe.types";
 import { SymbolView } from "expo-symbols";
 import { Controller, FormProvider, SubmitErrorHandler, SubmitHandler, useForm } from "react-hook-form";
 import { Button, Platform, Pressable, ScrollView, StyleSheet, TextInput } from 'react-native';
@@ -15,12 +14,16 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 
 interface ViewRecipeFormProps {
-    recipeToEdit?: Recipe; 
+    inRecipe?: Recipe; 
+    inTags?: Tag[];
+    inIngredients?: Ingredient[];
+    inInstructions?: Instruction[];
+    inNotes?: Note[];
     closeCallback: () => void;
     submitCallback: (data: RecipeFormValues) => void;
 }
 
-export function ViewRecipeForm({recipeToEdit, closeCallback, submitCallback} : ViewRecipeFormProps) {
+export function ViewRecipeForm({inRecipe, inTags, inIngredients, inInstructions, inNotes, closeCallback, submitCallback} : ViewRecipeFormProps) {
     
     const theme = useTheme();
 
@@ -52,24 +55,22 @@ export function ViewRecipeForm({recipeToEdit, closeCallback, submitCallback} : V
     const methods = useForm<RecipeFormValues>({ 
         mode: "onBlur",
         defaultValues: {
+            recipe: inRecipe,
+            tags: inTags,
+            ingredients: inIngredients,
+            instructions: inInstructions,
+            notes: inNotes,
         }
     });
-    
-    
-    if(!recipeToEdit)
-    {
-        //console.log("Empty recipe passed.");
-    }
 
     const onSubmit: SubmitHandler<RecipeFormValues> = (data) => {
-        data.recipe.id = randomUUID();
-        console.log("Recipe form submit successfully : ", JSON.stringify(data, null, 2));
+        //console.log("Recipe form submit successfully : ", JSON.stringify(data, null, 2));
         submitCallback(data);
+        closeCallback();
     } 
 
     const onSubmitFail: SubmitErrorHandler<RecipeFormValues> = (errors) => {
         console.log("Recipe form submit failed : ", JSON.stringify(errors, null, 2));
-        //submitCallback(data);
     } 
 
     return(

@@ -17,6 +17,12 @@ export const RECIPE_QUERIES = {
             HAVING COUNT(DISTINCT t.id) = ${tagCount};
     `,
 
+    GET_RECIPE_BY_ID: `
+        SELECT id, name, image, serving_count, duration 
+            FROM recipes 
+            WHERE id = ?;
+    `,
+
     DELETE_RECIPE:`
         DELETE 
             FROM recipes 

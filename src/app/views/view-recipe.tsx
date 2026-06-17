@@ -1,33 +1,35 @@
-import { useCallback, useState } from 'react';
-
-import Slider from '@expo/ui/community/slider';
-import Fraction from 'fraction.js';
-import { FlatList, Pressable, StyleSheet } from 'react-native';
-
-import { Recipe } from "@/types/recipe.types";
-
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useDatabaseDetails } from '@/hooks/use-database-details';
+import { useDatabaseFormValidation } from '@/hooks/use-database-form-validation';
+import { useDatabaseRecipes } from '@/hooks/use-database-recipes';
 import { useTheme } from "@/hooks/use-theme";
+import { Recipe, RecipeFormValues } from "@/types/recipe.types";
+import Slider from '@expo/ui/community/slider';
 import { useFocusEffect } from 'expo-router';
-import { useSQLiteContext } from 'expo-sqlite';
 import { SymbolView } from 'expo-symbols';
+import Fraction from 'fraction.js';
+import { useCallback, useState } from 'react';
+import { FlatList, Pressable, ScrollView, StyleSheet } from 'react-native';
+import { ViewRecipeForm } from './view-recipe-form';
 
 
 interface RecipeProps {
     recipe: Recipe;
     closeCallback: () => void;
+    updateDataCallback: () => void
 }
 
-export function ViewRecipe({recipe, closeCallback} : RecipeProps) {
+export function ViewRecipe({recipe, closeCallback, updateDataCallback} : RecipeProps) {
 
     const theme = useTheme();
 
-    const db = useSQLiteContext();
     const { tags, ingredients, instructions, notes, isLoading, fetchDetails } = useDatabaseDetails();
+    const { updateRecipe } = useDatabaseRecipes();
+    const { validateTags, validateIngredients } = useDatabaseFormValidation();
 
+    const [isEditing, setIsEditing] = useState<boolean>(false);
     const [isInstructions, setIsInstructions] = useState(false);
     const [servingSlider, setServingSlider] = useState(recipe.serving_count);
 
@@ -43,10 +45,40 @@ export function ViewRecipe({recipe, closeCallback} : RecipeProps) {
         }, [])
     );
 
+    useFocusEffect(
+        useCallback(() => {
+            setServingSlider(recipe.serving_count);
+            return () => {
+                // Screen lost focus: Cleanup resources here
+            };
+        }, [recipe])
+    );
+
+
+    /**
+     * Form callbacks
+     */
+    const handleCloseCallback = () => {
+        setIsEditing(false);
+    }
+    
+    const handleSubmitCallback = async (data: RecipeFormValues) => {
+        // Make sure ingredients and tags that already exist in the database use the correct id
+        await validateTags(data.tags);
+        await validateIngredients(data.ingredients);
+
+        // Update recipe in the database
+        await updateRecipe(data.recipe, data.tags, data.ingredients, data.instructions, data.notes);
+        
+        // Update states storing recipe data in component and parent component
+        updateDataCallback();
+        await fetchDetails(recipe.id);
+    }
+
     /**  
      *  Top and Bottom sections (declared in function to be used in FlatList because you can't put a FlatList inside a scrollview)
      */
-    function listHeader({name, image} : Recipe) {
+    function listHeader() {
         return(
             <ThemedView style={styles.container}>
                 <ThemedView style={styles.titleContainer}>
@@ -61,7 +93,12 @@ export function ViewRecipe({recipe, closeCallback} : RecipeProps) {
                                 tintColor={theme.text}
                             />
                     </Pressable> 
-                    <ThemedText type="subtitle">{name}</ThemedText> 
+                    <ThemedText type="subtitle" style={styles.title}>{recipe.name}</ThemedText> 
+                    <Pressable
+                        style={({ pressed }) => pressed && styles.pressed}
+                        onPress={() => setIsEditing(() => !isEditing)}>
+                        <ThemedText type="small" style={styles.headerButton}>edit</ThemedText>
+                    </Pressable>
                 </ThemedView>
 
                 <ThemedView style={styles.tagsContainer}>
@@ -130,15 +167,22 @@ export function ViewRecipe({recipe, closeCallback} : RecipeProps) {
     /**  
      *  Ingredients / instructions section
      */
-    if(isInstructions)
-    {
+    if(isEditing) {
+        return(
+            <ScrollView>
+                <ViewRecipeForm closeCallback={handleCloseCallback} submitCallback={handleSubmitCallback} 
+                inRecipe={recipe} inTags={tags} inIngredients={ingredients} inInstructions={instructions} inNotes={notes} />
+            </ScrollView>
+        );
+    } 
+    else if(isInstructions) {
         return(
             <ThemedView style={styles.container}>
                 <FlatList
                 style={[styles.container, { backgroundColor: theme.background }]}
                 contentContainerStyle={styles.listContainer}
                 data={instructions}
-                ListHeaderComponent={listHeader(recipe)}
+                ListHeaderComponent={listHeader()}
                 ListFooterComponent={listFooter()}
                 renderItem={({ item }) => (
                     <ThemedView style={styles.instruction}>
@@ -150,8 +194,8 @@ export function ViewRecipe({recipe, closeCallback} : RecipeProps) {
                 )}
             /> 
             </ThemedView>
-        )
-    }
+        );
+    } 
     else {
         return (
             <ThemedView style={styles.container}>
@@ -159,7 +203,7 @@ export function ViewRecipe({recipe, closeCallback} : RecipeProps) {
                     style={[styles.container, { backgroundColor: theme.background }]}
                     contentContainerStyle={styles.listContainer}
                     data={ingredients}
-                    ListHeaderComponent={listHeader(recipe)}
+                    ListHeaderComponent={listHeader()}
                     ListFooterComponent={listFooter()}
                     renderItem={({ item }) => (
                         <ThemedView style={styles.ingredient}>
@@ -180,10 +224,22 @@ const styles = StyleSheet.create({
     },
     titleContainer: {
         flexDirection: 'row',
+        flex:1,
         alignItems: "center",
         gap: Spacing.two,
         paddingHorizontal: Spacing.five,
         paddingVertical: Spacing.two,
+    },
+    title: {
+        flexShrink: 1
+        
+    },
+    headerButton:{
+        // todo
+    },
+    headerButtonPressed: {
+        textDecorationLine:"underline",
+        fontWeight:"bold"
     },
     buttonContainer: {
         gap: Spacing.four,

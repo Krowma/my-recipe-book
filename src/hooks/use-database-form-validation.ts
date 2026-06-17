@@ -11,6 +11,8 @@ export function useDatabaseFormValidation() {
             const result: Tag[] = await db.getAllAsync<Tag>(FILTERS_QUERIES.GET_ALL_TAGS);
 
             formTags.forEach(ft => {
+                ft.name = ft.name.toLowerCase();
+                
                 const filteredTags = result.filter(e => e.name === ft.name);
                 if(filteredTags.length > 0) {
                     ft.id = filteredTags[0].id
@@ -30,6 +32,8 @@ export function useDatabaseFormValidation() {
             const result: Ingredient[] = await db.getAllAsync<Ingredient>(FILTERS_QUERIES.GET_ALL_INGREDIENTS);
 
             formIngredients.forEach(fi => {
+                fi.name = fi.name.toLowerCase();
+
                 const filteredIngredients = result.filter(e => e.name === fi.name);
                 if(filteredIngredients.length > 0) {
                     fi.id = filteredIngredients[0].id

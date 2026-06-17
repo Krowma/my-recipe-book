@@ -4,6 +4,7 @@ import { BottomTabInset, Spacing } from "@/constants/theme";
 import { useDatabaseFormValidation } from '@/hooks/use-database-form-validation';
 import { useDatabaseRecipes } from '@/hooks/use-database-recipes';
 import { RecipeFormValues } from '@/types/recipe.types';
+import { randomUUID } from 'expo-crypto';
 import { useRouter } from 'expo-router';
 import { Platform, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -39,7 +40,7 @@ export default function AddRecipeScreen() {
     });
 
     const handleCloseCallback = () => {
-        router.navigate('/views/recipe-book');
+        router.navigate('/views/recipe-book'); // todo open recipe screen
     }
 
     const handleSubmitCallback = (data: RecipeFormValues) => {
@@ -47,6 +48,7 @@ export default function AddRecipeScreen() {
     }
 
     const handleSubmitAsync = async (data: RecipeFormValues) => {
+        data.recipe.id = randomUUID();
         // Make sure ingredients and tags that already exist in the database use the correct id
         await validateTags(data.tags);
         await validateIngredients(data.ingredients);

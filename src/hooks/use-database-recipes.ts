@@ -7,6 +7,7 @@ import { useCallback, useState } from 'react';
 export function useDatabaseRecipes() {
     const db = useSQLiteContext();
     const [recipes, setRecipes] = useState<Recipe[]>([]);
+    const [recipeById, setRecipeById] = useState<Recipe | null>();
     const [isLoading, setIsLoading] = useState(false);
 
     /**
@@ -32,6 +33,22 @@ export function useDatabaseRecipes() {
             }
             
             setRecipes(result);
+        } catch (error) {
+            console.error("[db] Failed to fetch recipes", error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [db]);
+
+    /**
+     * Get a specific recipe from the database.
+     */
+    const fetchRecipeById = useCallback(async (recipeId : string) => {
+        setIsLoading(true);
+        try {
+            const result = await db.getFirstAsync<Recipe>(RECIPE_QUERIES.GET_RECIPE_BY_ID, [recipeId])
+            setRecipeById(result);
+            
         } catch (error) {
             console.error("[db] Failed to fetch recipes", error);
         } finally {
@@ -66,7 +83,7 @@ export function useDatabaseRecipes() {
     /**
      * Create a new recipe on the database with associated details (ingredients, instructions, ...).
      */
-    const UpdateRecipe = async (recipe: Recipe, tags: Tag[], ingredients: Ingredient[], instructions: Instruction[], notes: Note[]) => {
+    const updateRecipe = async (recipe: Recipe, tags: Tag[], ingredients: Ingredient[], instructions: Instruction[], notes: Note[]) => {
         try {
             await db.withTransactionAsync(async () => {
             
@@ -87,9 +104,9 @@ export function useDatabaseRecipes() {
                 await createNotes(recipe.id, notes);
             });
 
-            console.log("[db] New recipe " + recipe.name + " created successfully!");
+            //console.log("[db] Recipe " + recipe.name + " updated successfully!");
         } catch (error) {
-            console.error('[db] Create Recipe transaction failed. Database rolled back.', error);
+            console.error('[db] Recipe update transaction failed. Database rolled back.', error);
         }
     };
 
@@ -137,5 +154,5 @@ export function useDatabaseRecipes() {
         }
     };
 
-    return { recipes, isLoading, fetchRecipes, createRecipe, UpdateRecipe, deleteRecipe };
+    return { recipes, recipeById, isLoading, fetchRecipes, fetchRecipeById, createRecipe, updateRecipe, deleteRecipe };
 }

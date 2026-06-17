@@ -37,7 +37,7 @@ export function useDatabaseDetails() {
 
             setInstructions(instructionsResult);
             /*instructionsResult.map(e => {
-                    console.log("ingredients = { step: " + e.step_number + ", desc: " + e.description + ", has_timer: " + e.has_timer + ", timer_duration: " + e.timer_duration + " }");
+                    console.log("instructions = { step: " + e.step_number + ", desc: " + e.description + ", has_timer: " + e.has_timer + ", timer_duration: " + e.timer_duration + " }");
             });*/
 
             setNotes(notesResult);

@@ -22,7 +22,7 @@ export default function RecipeBookScreen() {
     const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
     
     const [isRecipeOpen, setIsRecipeOpen] = useState(false);
-    const [openedRecipe, setOpenedRecipe] = useState<Recipe>(); 
+    const [openedRecipeId, setOpenedRecipeId] = useState<string>(); 
 
     const [isInDeleteMode, setIsInDeleteMode] = useState(false);
 
@@ -85,18 +85,24 @@ export default function RecipeBookScreen() {
         );
     }
 
+    const openedRecipe = recipes.find(e => e.id === openedRecipeId);
+
     const handleRecipePressed = (recipe: Recipe) => {
         if(isInDeleteMode){
             deleteRecipe(recipe.id);
         }
         else{
             setIsRecipeOpen(true);
-            setOpenedRecipe(recipe);
+            setOpenedRecipeId(recipe.id);
         }
     }
 
     const handleCloseRecipe = () => {
         setIsRecipeOpen(false);
+    }
+
+    const handleUpdateData = async () => {
+        await fetchRecipes();
     }
 
     /**
@@ -108,7 +114,7 @@ export default function RecipeBookScreen() {
         return (
             <ThemedView style={[styles.container, contentPlatformStyle]}>
                 <Animated.View entering={FadeIn.duration(100)} /*exiting={FadeOut.duration(200)}*/>
-                    <ViewRecipe recipe={openedRecipe} closeCallback={handleCloseRecipe} />
+                    <ViewRecipe recipe={openedRecipe} closeCallback={handleCloseRecipe} updateDataCallback={handleUpdateData} />
                 </Animated.View>
             </ThemedView>
         );
