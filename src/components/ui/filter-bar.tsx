@@ -80,7 +80,7 @@ export default function FilterBar({ selectedTags, setSelectedTags }: FilterBarPr
 
             {/* Display selected tags */}
             <ThemedView style={styles.filtersContainer}>
-                <ThemedText type="default">Tags:</ThemedText>
+                <ThemedText type="default">Filter by :</ThemedText>
                 {
                     selectedTags.map((tag, index) => (
                         <ThemedView key={tag.id} style={styles.filterElement}>
@@ -100,23 +100,23 @@ export default function FilterBar({ selectedTags, setSelectedTags }: FilterBarPr
 const styles = StyleSheet.create({
     filterBarContainer: {
         flexDirection: "column",
-        gap: Spacing.one,
+        gap: Spacing.three,
         paddingHorizontal: Spacing.four,
     },
     filtersContainer: {
         flexDirection: "row",
-        gap: Spacing.three,
+        gap: Spacing.one,
         alignItems: 'center',
-        paddingVertical: Spacing.three,
+        flexWrap: 'wrap'
     },
     filterElement: {
         flexDirection: 'row',
         backgroundColor: '#007AFF',
         borderRadius: 20,
-        paddingHorizontal: 12,
+        paddingHorizontal: Spacing.two,
         paddingVertical: 6,
-        marginRight: 8,
-        marginBottom: 8,
+        marginRight: Spacing.one,
+        marginBottom: Spacing.one,
         alignItems: 'center',
     },
 
@@ -133,6 +133,7 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
         fontSize: 16,
     },
+    
     dropdown: {
         position: 'absolute',
         top: 50,

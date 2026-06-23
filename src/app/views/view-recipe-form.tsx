@@ -1,16 +1,17 @@
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { Collapsible } from "@/components/ui/collapsible";
 import FormListIngredients from "@/components/ui/form-list-ingredients";
 import FormListInstructions from "@/components/ui/form-list-instructions";
 import FormListNotes from "@/components/ui/form-list-notes";
 import FormListTags from "@/components/ui/form-list-tags";
-import { BottomTabInset, Spacing } from "@/constants/theme";
+import { globalStyles, iconColors, iconSize } from "@/constants/styles";
+import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import { Ingredient, Instruction, Note, Recipe, RecipeFormValues, Tag } from "@/types/recipe.types";
-import { SymbolView } from "expo-symbols";
+import { FontAwesomeFreeSolid } from "@react-native-vector-icons/fontawesome-free-solid";
 import { Controller, FormProvider, SubmitErrorHandler, SubmitHandler, useForm } from "react-hook-form";
-import { Button, Platform, Pressable, ScrollView, StyleSheet, TextInput } from 'react-native';
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Pressable, ScrollView, StyleSheet, TextInput } from 'react-native';
 
 
 interface ViewRecipeFormProps {
@@ -26,28 +27,6 @@ interface ViewRecipeFormProps {
 export function ViewRecipeForm({inRecipe, inTags, inIngredients, inInstructions, inNotes, closeCallback, submitCallback} : ViewRecipeFormProps) {
     
     const theme = useTheme();
-
-    /**
-     * Platform safe area
-     */
-    const safeAreaInsets = useSafeAreaInsets();
-    const insets = {
-        ...safeAreaInsets,
-        bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
-    };
-    
-    const contentPlatformStyle = Platform.select({
-        android: {
-            paddingTop: insets.top,
-            paddingLeft: insets.left,
-            paddingRight: insets.right,
-            paddingBottom: insets.bottom,
-        },
-        web: {
-            paddingTop: Spacing.six,
-            paddingBottom: Spacing.four,
-        },
-    });
 
     /**
      * React Hook Form
@@ -74,138 +53,140 @@ export function ViewRecipeForm({inRecipe, inTags, inIngredients, inInstructions,
     } 
 
     return(
-        <ScrollView
-              style={[styles.scrollView, { backgroundColor: theme.background }]}
-              contentInset={insets}
-              contentContainerStyle={[styles.container, contentPlatformStyle]}>
-            
-            <FormProvider {...methods} >
-                <ThemedView style={styles.container}>
-                    <ThemedView style={styles.titleContainer}>
-                        {/*TODO image*/}
-                        <Pressable
-                            style={({ pressed }) => pressed && styles.pressed}
-                            onPress={() => closeCallback()}>
-                                <SymbolView
-                                    name={{ ios: 'chevron.left', android: 'chevron_left', web: 'chevron_left' }}
-                                    size={23}
-                                    weight="bold"
-                                    tintColor={theme.text} />
-                        </Pressable> 
-                        <ThemedText type="subtitle">Your recipe</ThemedText> 
+        <ThemedView style={globalStyles.topLevelContainer}>
+            <ThemedView style={ globalStyles.viewTitleContainer }>
+                <ThemedText type="subtitle">Edit your Recipe</ThemedText>
+            </ThemedView>
+
+            <ThemedView style={styles.viewTopBar}>
+                <Pressable onPress={() => closeCallback()}>
+                    <FontAwesomeFreeSolid name="chevron-circle-left" size={ iconSize.default } color={ iconColors.grey } />
+                </Pressable> 
+
+                <Pressable onPress={methods.handleSubmit(onSubmit, onSubmitFail)}>
+                    <FontAwesomeFreeSolid name="check-circle" size={ iconSize.default } color={ iconColors.blue } />
+                </Pressable> 
+            </ThemedView>
+
+            <ScrollView 
+                style={ globalStyles.flatListContainer } 
+                contentContainerStyle={ [styles.scrollView, {paddingBottom: 300}] } >
+
+                <FormProvider {...methods} >
+                    <ThemedView>
+                        {/* name */}
+                        <ThemedView style={styles.formContainer}>
+                            <ThemedView style={styles.fieldContainer}>
+                                <ThemedText type="small">Name </ThemedText>
+                                <Controller
+                                    control={methods.control}
+                                    rules={{ required: true }}
+                                    render={({ field: { onChange, onBlur, value } }) => (
+                                        <TextInput
+                                            placeholder="Recipe name"
+                                            onBlur={onBlur}
+                                            onChangeText={onChange}
+                                            value={value}
+                                            style={styles.inputField} />
+                                    )}
+                                    name="recipe.name" />
+                            </ThemedView>
+
+                            {/* tags */}
+                            <ThemedView style={styles.fieldContainer}>
+                                <FormListTags control={methods.control}/>
+                            </ThemedView>
+
+                            {/* servings */}
+                            <ThemedView style={styles.fieldContainer}>
+                                <ThemedText type="small">Number of servings </ThemedText>
+                                <Controller
+                                    control={methods.control}
+                                    rules={{ required: true, }}
+                                    defaultValue={1}
+                                    render={({ field: { onChange, onBlur, value } }) => (
+                                        <TextInput
+                                            onBlur={onBlur}
+                                            onChangeText={(text) => {
+                                                if (text === '') {
+                                                    onChange(null);
+                                                    return;
+                                                }
+                                                const parsedValue = parseInt(text, 10);
+                                                onChange(isNaN(parsedValue) ? null : parsedValue);
+                                            }}
+                                            value={value !== null && value !== undefined ? String(value) : ''}
+                                            keyboardType="numeric"
+                                            style={styles.inputField} />
+                                    )}
+                                    name="recipe.serving_count" />
+                            </ThemedView>
+
+                            {/* duration */}
+                            <ThemedView style={styles.fieldContainer}>
+                                <ThemedText type="small">Total duration </ThemedText>
+                                <Controller
+                                    control={methods.control}
+                                    rules={{ required: false, }}
+                                    defaultValue={0}
+                                    render={({ field: { onChange, onBlur, value } }) => (
+                                        <TextInput
+                                            onBlur={onBlur}
+                                            onChangeText={(text) => {
+                                                if (text === '') {
+                                                    onChange(null);
+                                                    return;
+                                                }
+                                                const parsedValue = parseInt(text, 10);
+                                                onChange(isNaN(parsedValue) ? null : parsedValue);
+                                            }}
+                                            value={value !== null && value !== undefined ? String(value) : ''}
+                                            keyboardType="numeric"
+                                            style={styles.inputField}/>
+                                    )}
+                                    name="recipe.duration" />
+                            </ThemedView>
+                            
+                            {/* Ingredients */}
+                            <Collapsible title="Ingredients">
+                                <FormListIngredients control={methods.control}/>
+                            </Collapsible>
+
+                            {/* Instrunctions */}
+                            <Collapsible title="Instructions">
+                                <FormListInstructions control={methods.control}/>
+                            </Collapsible>
+                            
+                            {/* Notes */}
+                            <Collapsible title="Notes">
+                                <FormListNotes control={methods.control}/>
+                            </Collapsible>
+                            
+
+                        </ThemedView>
                     </ThemedView>
-
-                    {/* name */}
-                    <ThemedView style={styles.formContainer}>
-                        <ThemedView style={styles.fieldContainer}>
-                            <ThemedText type="small">Name </ThemedText>
-                            <Controller
-                                control={methods.control}
-                                rules={{ required: true }}
-                                render={({ field: { onChange, onBlur, value } }) => (
-                                    <TextInput
-                                        placeholder="Recipe name"
-                                        onBlur={onBlur}
-                                        onChangeText={onChange}
-                                        value={value}
-                                        style={styles.inputField} />
-                                )}
-                                name="recipe.name" />
-                        </ThemedView>
-
-                        {/* tags */}
-                        <ThemedView style={styles.fieldContainer}>
-                            <FormListTags control={methods.control}/>
-                        </ThemedView>
-
-                        {/* servings */}
-                        <ThemedView style={styles.fieldContainer}>
-                            <ThemedText type="small">Number of servings </ThemedText>
-                            <Controller
-                                control={methods.control}
-                                rules={{ required: true, }}
-                                defaultValue={1}
-                                render={({ field: { onChange, onBlur, value } }) => (
-                                    <TextInput
-                                        onBlur={onBlur}
-                                        onChangeText={(text) => {
-                                            if (text === '') {
-                                                onChange(null);
-                                                return;
-                                            }
-                                            const parsedValue = parseInt(text, 10);
-                                            onChange(isNaN(parsedValue) ? null : parsedValue);
-                                        }}
-                                        value={value !== null && value !== undefined ? String(value) : ''}
-                                        keyboardType="numeric"
-                                        style={styles.inputField} />
-                                )}
-                                name="recipe.serving_count" />
-                        </ThemedView>
-
-                        {/* duration */}
-                        <ThemedView style={styles.fieldContainer}>
-                            <ThemedText type="small">Total duration </ThemedText>
-                            <Controller
-                                control={methods.control}
-                                rules={{ required: false, }}
-                                defaultValue={0}
-                                render={({ field: { onChange, onBlur, value } }) => (
-                                    <TextInput
-                                        onBlur={onBlur}
-                                        onChangeText={(text) => {
-                                            if (text === '') {
-                                                onChange(null);
-                                                return;
-                                            }
-                                            const parsedValue = parseInt(text, 10);
-                                            onChange(isNaN(parsedValue) ? null : parsedValue);
-                                        }}
-                                        value={value !== null && value !== undefined ? String(value) : ''}
-                                        keyboardType="numeric"
-                                        style={styles.inputField}/>
-                                )}
-                                name="recipe.duration" />
-                        </ThemedView>
-                        
-                        {/* Ingredients */}
-                        <ThemedView style={styles.fieldContainer}>
-                            <FormListIngredients control={methods.control}/>
-                        </ThemedView>
-
-                        {/* Instrunctions */}
-                        <ThemedView style={styles.fieldContainer}>
-                            <FormListInstructions control={methods.control}/>
-                        </ThemedView>
-                        
-                        {/* Notes */}
-                        <ThemedView style={styles.fieldContainer}>
-                            <FormListNotes control={methods.control}/>
-                        </ThemedView>
-
-                        <Button title="Submit" onPress={methods.handleSubmit(onSubmit, onSubmitFail)} />
-                    </ThemedView>
-                </ThemedView>
-            </FormProvider>
-        </ScrollView>
+                </FormProvider>
+            </ScrollView>
+        </ThemedView>
     );
 }
 
 const styles = StyleSheet.create({
-    scrollView: {
-        flex: 1,
-    },
-    container: {
-        flexDirection: "column",
-        flexGrow: 1,
-        backgroundColor: "white"
-    },
-    titleContainer: {
+    viewTopBar: {
+        marginHorizontal: Spacing.three,
+        borderRadius: 20,
         flexDirection: 'row',
-        alignItems: "center",
-        gap: Spacing.two,
-        paddingHorizontal: Spacing.five,
+        alignItems: 'center',
+        justifyContent: 'space-evenly',
+        backgroundColor: '#c19c36',
         paddingVertical: Spacing.two,
+    
+        zIndex: 999, // Guarantees it stays above scrolling content
+        elevation: 5, // Android drop shadow for floating effect
+    },
+
+    scrollView: {
+        flexGrow: 1,
     },
 
     formContainer: {
@@ -225,9 +206,5 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         paddingLeft: Spacing.two,
         paddingRight: Spacing.four
-    },
-
-    pressed: {
-        opacity: 0.7,
     },
 });

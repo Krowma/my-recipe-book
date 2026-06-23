@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
         flexDirection: "column",
         flexGrow: 1,
         backgroundColor: "white",
-        gap: 5
+        gap: Spacing.one
     },
     rowContainer: {
         flexDirection: 'row',

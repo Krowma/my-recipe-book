@@ -6,6 +6,7 @@
     "@expo/ui": "~56.0.15",
     "@faker-js/faker": "^10.4.0",
     "@hookform/resolvers": "^5.4.0",
+    "@react-native-vector-icons/fontawesome-free-solid": "^1.1.2",
     "expo": "~56.0.8",
     "expo-constants": "~56.0.16",
     "expo-crypto": "~56.0.4",

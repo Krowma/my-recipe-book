@@ -1,7 +1,6 @@
+import { Colors } from '@/constants/theme';
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
 import { useColorScheme } from 'react-native';
-
-import { Colors } from '@/constants/theme';
 
 export default function AppTabs() {
   const scheme = useColorScheme();
@@ -28,18 +27,18 @@ export default function AppTabs() {
         />
       </NativeTabs.Trigger>*/}
 
-      <NativeTabs.Trigger name="views/recipe-add-form">
+      {/*<NativeTabs.Trigger name="views/recipe-add-form">
         <NativeTabs.Trigger.Label>Add a Recipe</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/icons-add-24.png')}
+          src={require('@/assets/images/tabIcons/icons-add-48.png')}
           renderingMode="template"
         />
-      </NativeTabs.Trigger>
+      </NativeTabs.Trigger>*/}
 
       <NativeTabs.Trigger name="views/recipe-book">
         <NativeTabs.Trigger.Label>Recipes</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/icons-books-25.png')}
+          src={require('@/assets/images/tabIcons/icons-books-50.png')}
           renderingMode="template"
         />
       </NativeTabs.Trigger>

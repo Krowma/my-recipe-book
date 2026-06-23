@@ -4,6 +4,11 @@ import { SQLiteDatabase } from 'expo-sqlite';
 
 
 const tagOptions = ["dessert", "simple", "complex", "lunch", "vegan", "fresh"];
+const imageOptions = [
+    "https://images.immediate.co.uk/production/volatile/sites/30/2020/08/chorizo-mozarella-gnocchi-bake-cropped-9ab73a3.jpg?quality=90&resize=700,636",
+    "https://www.inspiredtaste.net/wp-content/uploads/2024/07/French-Toast-Recipe-3.jpg",
+    "https://www.theendlessmeal.com/wp-content/uploads/2019/03/Coq-au-Vin-Recipe-3.jpg"
+];
 
 export async function seedFakeData(count: number = 5) {
     const db = await SQLite.openDatabaseAsync('recipebook.db', { useNewConnection: true });
@@ -63,7 +68,7 @@ export async function seedFakeData(count: number = 5) {
                 await statement.executeAsync({
                     $id: recipe_id,
                     $name: faker.food.dish(),
-                    $image: faker.internet.url().toLowerCase(),
+                    $image: imageOptions[faker.number.int({min:0, max: imageOptions.length - 1})],
                     $serving_count: faker.number.int({min:1, max:20}),
                     $duration: faker.number.int({min:15, max:360})
                 });
@@ -139,7 +144,7 @@ async function generateInstructions(db: SQLiteDatabase, recipe_id: string, count
         for (let i = 0; i < count; i++) {
             await statement_instrunctions.executeAsync({
                 $id: faker.string.uuid(),
-                $step_number: i,
+                $step_number: i+1,
                 $description: faker.lorem.sentence({min:3, max:10}),
                 $has_timer: faker.datatype.boolean(),
                 $timer_duration: faker.number.int({min:1, max:30}),

@@ -2,13 +2,15 @@ import { ViewRecipe } from '@/app/views/view-recipe';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import FilterBar from '@/components/ui/filter-bar';
-import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
+import { globalStyles, iconColors, iconSize } from '@/constants/styles';
+import { BottomTabInset, Spacing } from "@/constants/theme";
 import { useDatabaseRecipes } from '@/hooks/use-database-recipes';
 import { useTheme } from "@/hooks/use-theme";
 import { Recipe, Tag } from '@/types/recipe.types';
-import { useFocusEffect } from 'expo-router';
+import { FontAwesomeFreeSolid } from "@react-native-vector-icons/fontawesome-free-solid";
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { FlatList, Platform, Pressable, StyleSheet } from 'react-native';
+import { FlatList, Image, Platform, Pressable, StyleSheet, TouchableOpacity, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -16,6 +18,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 export default function RecipeBookScreen() {
 
     const theme = useTheme();
+    const router = useRouter();
     
     const { recipes, fetchRecipes, deleteRecipe } = useDatabaseRecipes();
 
@@ -67,34 +70,13 @@ export default function RecipeBookScreen() {
     });
 
     /**
-     * Page components
+     * Button Callbacks
      */
-    function listHeader() {
-        return (
-            <ThemedView style={styles.container}>
-                <FilterBar selectedTags={selectedTags} setSelectedTags={setSelectedTags}/>
-            </ThemedView>
-        );
-    }
-
-    function listFooter() {
-        return (
-            <ThemedView style={styles.container}>
-                {/* todo */}
-            </ThemedView>
-        );
-    }
-
     const openedRecipe = recipes.find(e => e.id === openedRecipeId);
 
     const handleRecipePressed = (recipe: Recipe) => {
-        if(isInDeleteMode){
-            deleteRecipe(recipe.id);
-        }
-        else{
-            setIsRecipeOpen(true);
-            setOpenedRecipeId(recipe.id);
-        }
+        setIsRecipeOpen(true);
+        setOpenedRecipeId(recipe.id);
     }
 
     const handleCloseRecipe = () => {
@@ -105,14 +87,28 @@ export default function RecipeBookScreen() {
         await fetchRecipes();
     }
 
+    const handleAddRecipeCallback = () => {
+        //router.navigate('./recipe-add-form');
+        router.push('/views/recipe-add-form');
+        console.log(" ADD RECIPE");
+    }
+
+    const handleFavoritesCallback = () => {
+        console.log(" FAVORITE feature not implemented");
+    }
+
+    const handleCookingListCallback = () => {
+        console.log("COOKING LIST feature not implemented");
+    }
+
     /**
      * List display
      */
-    const numColumns = 3;
+    const numColumns = 2;
 
     if(isRecipeOpen && openedRecipe) {
         return (
-            <ThemedView style={[styles.container, contentPlatformStyle]}>
+            <ThemedView style={[globalStyles.topLevelContainer, contentPlatformStyle]}>
                 <Animated.View entering={FadeIn.duration(100)} /*exiting={FadeOut.duration(200)}*/>
                     <ViewRecipe recipe={openedRecipe} closeCallback={handleCloseRecipe} updateDataCallback={handleUpdateData} />
                 </Animated.View>
@@ -121,30 +117,63 @@ export default function RecipeBookScreen() {
     }
     else {
         return (
-            <ThemedView style={[styles.container, contentPlatformStyle]}>
-                <ThemedView style={styles.headerContainer}>
+            <ThemedView style={[globalStyles.topLevelContainer, contentPlatformStyle]}>
+                <ThemedView style={ globalStyles.viewTitleContainer }>
                     <ThemedText type="subtitle">Recipe Book</ThemedText>
+                </ThemedView>
+
+                <ThemedView style={globalStyles.viewTopBar}>
                     <Pressable
-                        style={({ pressed }) => pressed && styles.pressed}
-                        onPress={() => setIsInDeleteMode(() => !isInDeleteMode)}>
-                        <ThemedText type="small" style={[styles.headerButton, isInDeleteMode && styles.headerButtonPressed]}>delete</ThemedText>
+                        onPress={handleAddRecipeCallback}>
+                        <FontAwesomeFreeSolid name="add" size={ iconSize.default } color={ iconColors.grey } />
                     </Pressable>
+
+                    {/*<Link href="/views/recipe-add-form" asChild>
+                        <Pressable>
+                            <ThemedText>+</ThemedText>
+                        </Pressable>
+                    </Link>*/}
+                    
+                    <Pressable
+                        onPress={handleFavoritesCallback}>
+                        <FontAwesomeFreeSolid name="heart" size={ iconSize.default } color={ iconColors.red } />
+                    </Pressable>
+
+                    <Pressable
+                        onPress={handleCookingListCallback}>
+                        <FontAwesomeFreeSolid name="utensils" size={ iconSize.default } color={ iconColors.grey } />
+                    </Pressable>
+                </ThemedView>
+
+                <ThemedView style={styles.filterContainer}>
+                    <FilterBar selectedTags={selectedTags} setSelectedTags={setSelectedTags}/>
+                    <View style={{ borderBottomColor: 'black', borderBottomWidth: StyleSheet.hairlineWidth, marginHorizontal: Spacing.three, paddingVertical: Spacing.two}} />
                 </ThemedView>
                 
                 <FlatList
-                    style={[styles.container, { backgroundColor: theme.background }]}
-                    contentInset={insets}
-                    contentContainerStyle={styles.gridContainer}
+                    style={ globalStyles.flatListContainer }
+                    contentContainerStyle={[globalStyles.flatListSafeArea, styles.gridContainer]}
                     numColumns={numColumns}
                     data={recipes}
-                    ListHeaderComponent={listHeader()}
-                    ListFooterComponent={listFooter()}
                     renderItem={({ item }) => (
-                        <Pressable
-                            style={({ pressed }) => [styles.recipeCard, { backgroundColor: theme['backgroundElement']}, pressed && styles.pressed]}
-                            onPress={() => handleRecipePressed(item)}>
-                                <ThemedText style={styles.recipeName}>{item.name}</ThemedText>
-                        </Pressable>
+                        <ThemedView style={ [cardStyle.cardContainer, {backgroundColor: theme['backgroundElement']}] }> 
+                            {isInDeleteMode && 
+                                <TouchableOpacity 
+                                    style={cardStyle.deleteButton} 
+                                    onPress={() => deleteRecipe(item.id)}>
+                                        <ThemedText type="smallBold">✕</ThemedText>
+                                </TouchableOpacity>
+                            }
+
+                            <Pressable
+                                onPress={() => handleRecipePressed(item)}
+                                onLongPress={() => setIsInDeleteMode(() => !isInDeleteMode)}>
+                                    <Image 
+                                        source={{ uri: item.image }} 
+                                        style={cardStyle.recipeImage} />
+                                    <ThemedText style={cardStyle.recipeName}>{item.name}</ThemedText>
+                            </Pressable>
+                        </ThemedView>
                     )}
                 />
             </ThemedView>
@@ -152,75 +181,49 @@ export default function RecipeBookScreen() {
     }
 }
 
-
-const styles = StyleSheet.create({
-    headerContainer: {
-        flexDirection: 'row',
-        alignItems: "center",
-        gap: Spacing.two,
-        paddingHorizontal: Spacing.five,
-        paddingVertical: Spacing.two,
-    },
-    buttonContainer: {
-        gap: Spacing.four,
-        flexDirection: 'row',
-    },
-    headerButton:{
-        // todo
-    },
-    headerButtonPressed: {
-        textDecorationLine:"underline",
-        fontWeight:"bold"
-    },
-
-    gridContainer: {
-        padding: Spacing.three,
-        gap: Spacing.four,
-    },
-    recipeCard: {
+const cardStyle = StyleSheet.create({
+    cardContainer: {
         flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-
         padding: Spacing.two,
         margin: 5,
         borderRadius: Spacing.three,
-
-        maxWidth: '25%',
+        maxWidth: '50%',
+        minHeight: 180,
+        position: 'relative',
     },
 
     recipeName: {
-        fontWeight:"bold"
+        fontWeight:"bold",
+        fontSize: 14
     },
 
-    contentContainer: {
-        flexDirection: 'row',
+    recipeImage: {
+        width: '100%',
+        aspectRatio: 296 / 171,
+        borderRadius: Spacing.three,
+        marginTop: Spacing.two,
+    },
+
+    deleteButton: {
+        position: 'absolute',
+        top: -8,
+        right: -8,
+        backgroundColor: '#ff4d4d',
+        width: 24,
+        height: 24,
+        borderRadius: 12,
         justifyContent: 'center',
-    },
-    container: {
-        flex: 1,
-        maxWidth: MaxContentWidth,
-        flexDirection: "column"
-    },
-    titleContainer: {
-        gap: Spacing.three,
         alignItems: 'center',
-        paddingHorizontal: Spacing.four,
-        paddingVertical: Spacing.four,
+    },
+});
+
+const styles = StyleSheet.create({
+
+    filterContainer: {
+        paddingVertical: Spacing.two
     },
 
-    centerText: {
-        textAlign: 'center',
-    },
-    pressed: {
-        opacity: 0.7,
-    },
-    sectionsWrapper: {
-        gap: Spacing.five,
-        paddingHorizontal: Spacing.four,
-        paddingTop: Spacing.three,
-    },
-    collapsibleContent: {
-        alignItems: 'center',
+    gridContainer: {
+        gap: Spacing.two,
     },
 });
