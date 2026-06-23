@@ -6,60 +6,112 @@ import FormListInstructions from "@/components/ui/form-list-instructions";
 import FormListNotes from "@/components/ui/form-list-notes";
 import FormListTags from "@/components/ui/form-list-tags";
 import { globalStyles, iconColors, iconSize } from "@/constants/styles";
-import { Spacing } from "@/constants/theme";
-import { useTheme } from "@/hooks/use-theme";
-import { Ingredient, Instruction, Note, Recipe, RecipeFormValues, Tag } from "@/types/recipe.types";
+import { BottomTabInset, Spacing } from "@/constants/theme";
+import { useDatabaseFormValidation } from "@/hooks/use-database-form-validation";
+import { useDatabaseRecipes } from "@/hooks/use-database-recipes";
+import { RecipeFormValues } from "@/types/recipe.types";
 import { FontAwesomeFreeSolid } from "@react-native-vector-icons/fontawesome-free-solid";
+import { randomUUID } from 'expo-crypto';
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useEffect } from "react";
 import { Controller, FormProvider, SubmitErrorHandler, SubmitHandler, useForm } from "react-hook-form";
-import { Pressable, ScrollView, StyleSheet, TextInput } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, TextInput } from 'react-native';
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 
-interface ViewRecipeFormProps {
-    inRecipe?: Recipe; 
-    inTags?: Tag[];
-    inIngredients?: Ingredient[];
-    inInstructions?: Instruction[];
-    inNotes?: Note[];
-    closeCallback: () => void;
-    submitCallback: (data: RecipeFormValues) => void;
-}
+export default function ViewRecipeForm() {
 
-export function ViewRecipeForm({inRecipe, inTags, inIngredients, inInstructions, inNotes, closeCallback, submitCallback} : ViewRecipeFormProps) {
+    const router = useRouter();
+
+    const { recipe, tags, ingredients, instructions, notes, isLoading, fetchRecipeWithDetails, updateRecipe, createRecipe } = useDatabaseRecipes();
+    const { validateTags, validateIngredients } = useDatabaseFormValidation();
+
+    const { recipeId } = useLocalSearchParams<{ recipeId: string; }>();
+
+    /**
+     * Platform safe area
+     */
+    const safeAreaInsets = useSafeAreaInsets();
+    const insets = {
+        ...safeAreaInsets,
+        bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
+    };
     
-    const theme = useTheme();
+    const contentPlatformStyle = Platform.select({
+        android: {
+            paddingTop: insets.top,
+            paddingLeft: insets.left,
+            paddingRight: insets.right,
+            paddingBottom: insets.bottom,
+        },
+        web: {
+            paddingTop: Spacing.six,
+            paddingBottom: Spacing.four,
+        },
+    });
 
     /**
      * React Hook Form
      */
     const methods = useForm<RecipeFormValues>({ 
         mode: "onBlur",
-        defaultValues: {
-            recipe: inRecipe,
-            tags: inTags,
-            ingredients: inIngredients,
-            instructions: inInstructions,
-            notes: inNotes,
-        }
+        values: {
+            recipe: recipe || {
+                id: "",
+                name: "",
+                image: "",
+                serving_count: 1,
+                duration: 0
+            }, 
+            tags: tags || [],
+            ingredients: ingredients || [],
+            instructions: instructions || [],
+            notes: notes || [],
+        },
     });
+
+    const handleSubmitCallback = async (data: RecipeFormValues) => {
+        
+        // Make sure ingredients and tags that already exist in the database use the correct id
+        await validateTags(data.tags);
+        await validateIngredients(data.ingredients);
+
+        // Update recipe in the database
+        if(recipeId) {
+            await updateRecipe(data.recipe, data.tags, data.ingredients, data.instructions, data.notes);
+        }
+        else {
+            data.recipe.id = randomUUID();
+            await createRecipe(data.recipe, data.tags, data.ingredients, data.instructions, data.notes);
+        }
+    }
 
     const onSubmit: SubmitHandler<RecipeFormValues> = (data) => {
         //console.log("Recipe form submit successfully : ", JSON.stringify(data, null, 2));
-        submitCallback(data);
-        closeCallback();
+        handleSubmitCallback(data);
+        router.back();
     } 
 
     const onSubmitFail: SubmitErrorHandler<RecipeFormValues> = (errors) => {
         console.log("Recipe form submit failed : ", JSON.stringify(errors, null, 2));
     } 
 
+    /**
+     * Database
+     */
+    useEffect(() => {
+        if(recipeId)
+            fetchRecipeWithDetails(recipeId);
+    }, []);
+
     return(
-        <ThemedView style={globalStyles.topLevelContainer}>
+        <ThemedView style={[globalStyles.topLevelContainer, contentPlatformStyle]}>
             <ThemedView style={ globalStyles.viewTitleContainer }>
                 <ThemedText type="subtitle">Edit your Recipe</ThemedText>
             </ThemedView>
 
             <ThemedView style={styles.viewTopBar}>
-                <Pressable onPress={() => closeCallback()}>
+                <Pressable onPress={() => router.back()}>
                     <FontAwesomeFreeSolid name="chevron-circle-left" size={ iconSize.default } color={ iconColors.grey } />
                 </Pressable> 
 

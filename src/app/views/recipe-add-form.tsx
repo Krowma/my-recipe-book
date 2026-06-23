@@ -1,4 +1,3 @@
-import { ViewRecipeForm } from '@/app/views/view-recipe-form';
 import { ThemedView } from '@/components/themed-view';
 import { globalStyles } from '@/constants/styles';
 import { BottomTabInset, Spacing } from "@/constants/theme";
@@ -40,10 +39,6 @@ export default function AddRecipeScreen() {
         },
     });
 
-    const handleCloseCallback = () => {
-        router.navigate('/views/recipe-book'); // todo open recipe screen
-        console.log(" RETURN BOOK");
-    }
 
     const handleSubmitCallback = (data: RecipeFormValues) => {
         handleSubmitAsync(data);
@@ -56,13 +51,11 @@ export default function AddRecipeScreen() {
         await validateIngredients(data.ingredients);
 
         await createRecipe(data.recipe, data.tags, data.ingredients, data.instructions, data.notes);
-        router.navigate('/views/recipe-book');
-        console.log(" RETURN BOOK");
+        router.navigate('/recipe-book/view-recipe-book');
     }
 
     return(
         <ThemedView style={[globalStyles.topLevelContainer, contentPlatformStyle]}>
-            <ViewRecipeForm closeCallback={handleCloseCallback} submitCallback={handleSubmitCallback}/>
         </ThemedView>
     );
 }

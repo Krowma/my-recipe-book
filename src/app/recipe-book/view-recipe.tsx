@@ -1,79 +1,73 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { globalStyles, iconColors, iconSize } from '@/constants/styles';
-import { MaxContentWidth, Spacing } from '@/constants/theme';
-import { useDatabaseDetails } from '@/hooks/use-database-details';
-import { useDatabaseFormValidation } from '@/hooks/use-database-form-validation';
+import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
 import { useDatabaseRecipes } from '@/hooks/use-database-recipes';
-import { useTheme } from "@/hooks/use-theme";
-import { Recipe, RecipeFormValues } from "@/types/recipe.types";
 import Slider from '@expo/ui/community/slider';
 import { FontAwesomeFreeSolid } from "@react-native-vector-icons/fontawesome-free-solid";
-import { useFocusEffect } from 'expo-router';
+import { Link, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import Fraction from 'fraction.js';
 import { useCallback, useState } from 'react';
-import { FlatList, Image, Pressable, StyleSheet } from 'react-native';
-import { ViewRecipeForm } from './view-recipe-form';
+import { FlatList, Image, Platform, Pressable, StyleSheet } from 'react-native';
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-interface RecipeProps {
-    recipe: Recipe;
-    closeCallback: () => void;
-    updateDataCallback: () => void
-}
 
-export function ViewRecipe({recipe, closeCallback, updateDataCallback} : RecipeProps) {
+export default function ViewRecipe() {
 
-    const theme = useTheme();
+    const router = useRouter();
 
-    const { tags, ingredients, instructions, notes, isLoading, fetchDetails } = useDatabaseDetails();
-    const { updateRecipe } = useDatabaseRecipes();
-    const { validateTags, validateIngredients } = useDatabaseFormValidation();
+    const { recipe, tags, ingredients, instructions, notes, fetchRecipeWithDetails } = useDatabaseRecipes();
 
-    const [isEditing, setIsEditing] = useState<boolean>(false);
+    const { recipeId } = useLocalSearchParams<{ recipeId: string; }>();
+
     const [isInstructions, setIsInstructions] = useState(false);
-    const [servingSlider, setServingSlider] = useState(recipe.serving_count);
+    const [servingSlider, setServingSlider] = useState(1);
+
+    const imagePlaceholder = require('@/assets/images/image-not-found.png');
 
     /**
      * Database
      */
     useFocusEffect(
         useCallback(() => {
-            fetchDetails(recipe.id);
-            return () => {
-                // Screen lost focus: Cleanup resources here
-            };
+            fetchRecipeWithDetails(recipeId);
         }, [])
     );
 
     useFocusEffect(
         useCallback(() => {
-            setServingSlider(recipe.serving_count);
-            return () => {
-                // Screen lost focus: Cleanup resources here
-            };
+            if(recipe) {
+                setServingSlider(recipe.serving_count);
+            }
         }, [recipe])
     );
 
+    /**
+     * Platform safe area
+     */
+    const safeAreaInsets = useSafeAreaInsets();
+    const insets = {
+        ...safeAreaInsets,
+        bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
+    };
+    
+    const contentPlatformStyle = Platform.select({
+        android: {
+            paddingTop: insets.top,
+            paddingLeft: insets.left,
+            paddingRight: insets.right,
+            paddingBottom: insets.bottom,
+        },
+        web: {
+            paddingTop: Spacing.six,
+            paddingBottom: Spacing.four,
+        },
+    });
+
 
     /**
-     * Form callbacks
+     * Button callbacks
      */
-    const handleCloseCallback = () => {
-        setIsEditing(false);
-    }
-    
-    const handleSubmitCallback = async (data: RecipeFormValues) => {
-        // Make sure ingredients and tags that already exist in the database use the correct id
-        await validateTags(data.tags);
-        await validateIngredients(data.ingredients);
-
-        // Update recipe in the database
-        await updateRecipe(data.recipe, data.tags, data.ingredients, data.instructions, data.notes);
-        
-        // Update states storing recipe data in component and parent component
-        updateDataCallback();
-        await fetchDetails(recipe.id);
-    }
 
     const handleFavoriteCallback = () => {
         console.log(" FAVORITE feature not implemented");
@@ -87,12 +81,12 @@ export function ViewRecipe({recipe, closeCallback, updateDataCallback} : RecipeP
             <ThemedView style={globalStyles.topLevelContainer}>
                 <ThemedView style={styles.imageContainer}>
                     <Image 
-                        source={{ uri: recipe.image }}
+                        source={ recipe && recipe.image != "" ? { uri: recipe.image } : imagePlaceholder }
                         style={styles.recipeImage} />
                 </ThemedView>
 
                 <ThemedView style={styles.recipeNameContainer}>
-                    <ThemedText type="subtitle" style={styles.recipeName}>{recipe.name}</ThemedText> 
+                    <ThemedText type="subtitle" style={styles.recipeName}>{ recipe? recipe.name : "" }</ThemedText> 
                 </ThemedView>
 
                 <ThemedView style={styles.tagsContainer}>
@@ -155,73 +149,59 @@ export function ViewRecipe({recipe, closeCallback, updateDataCallback} : RecipeP
         const simpleFraction = fraction.simplify(0.1).toFraction(true);
         return `${simpleFraction}`;
     }
+    
+    return(
+        <ThemedView style={ [globalStyles.topLevelContainer, contentPlatformStyle] }>
+            <ThemedView style={globalStyles.viewTopBar}>
+                <Pressable
+                    onPress={() => router.back()}>
+                        <FontAwesomeFreeSolid name="chevron-circle-left" size={ iconSize.default } color={ iconColors.grey } />
+                </Pressable> 
 
-
-    if(isEditing) {
-        return(
-            <ViewRecipeForm 
-                closeCallback={handleCloseCallback} 
-                submitCallback={handleSubmitCallback} 
-                inRecipe={recipe} 
-                inTags={tags} 
-                inIngredients={ingredients} 
-                inInstructions={instructions} 
-                inNotes={notes} />
-        );
-    } 
-    else {
-        return(
-            <ThemedView style={globalStyles.topLevelContainer}>
-                <ThemedView style={globalStyles.viewTopBar}>
-                    <Pressable
-                        onPress={() => closeCallback()}>
-                            <FontAwesomeFreeSolid name="chevron-circle-left" size={ iconSize.default } color={ iconColors.grey } />
-                    </Pressable> 
-
-                    <Pressable
-                        onPress={handleFavoriteCallback}>
-                        <FontAwesomeFreeSolid name="heart" size={ iconSize.default } color={ iconColors.red } />
-                    </Pressable>
-                    
-                    <Pressable
-                        onPress={() => setIsEditing(() => !isEditing)}>
+                <Pressable
+                    onPress={handleFavoriteCallback}>
+                    <FontAwesomeFreeSolid name="heart" size={ iconSize.default } color={ iconColors.red } />
+                </Pressable>
+                
+                <Link href={{ pathname:"/recipe-book/view-recipe-form", params: {recipeId: recipeId} }} asChild>
+                    <Pressable>
                         <FontAwesomeFreeSolid name="pen-to-square" size={ iconSize.default } color={ iconColors.grey } />
                     </Pressable>
-                </ThemedView>
-
-                { isInstructions && 
-                    <FlatList
-                        style={ globalStyles.flatListContainer }
-                        contentContainerStyle={ [globalStyles.flatListSafeArea, sectionStyles.listContainer] }
-                        data={instructions}
-                        ListHeaderComponent={listHeader()}
-                        ListFooterComponent={listFooter()}
-                        renderItem={({ item }) => (
-                            <ThemedView style={sectionStyles.instruction}>
-                                <ThemedText>{item.step_number}. {item.description}</ThemedText>
-                                {
-                                    Boolean(item.has_timer) && <ThemedText>Timer {item.timer_duration} min</ThemedText>
-                                }
-                            </ThemedView>
-                        )} /> 
-                }
-
-                { !isInstructions && 
-                    <FlatList
-                        style={ globalStyles.flatListContainer }
-                        contentContainerStyle={ [globalStyles.flatListSafeArea, sectionStyles.listContainer] }
-                        data={ingredients}
-                        ListHeaderComponent={listHeader()}
-                        ListFooterComponent={listFooter()}
-                        renderItem={({ item }) => (
-                            <ThemedView style={sectionStyles.ingredient}>
-                                <ThemedText>{fractionSring(item.quantity * (servingSlider/recipe.serving_count))} {item.unit} of {item.name} </ThemedText>
-                            </ThemedView>
-                        )} />
-                }
+                </Link>
             </ThemedView>
-        );
-    }
+
+            { isInstructions && 
+                <FlatList
+                    style={ globalStyles.flatListContainer }
+                    contentContainerStyle={ [globalStyles.flatListSafeArea, sectionStyles.listContainer] }
+                    data={instructions}
+                    ListHeaderComponent={listHeader()}
+                    ListFooterComponent={listFooter()}
+                    renderItem={({ item }) => (
+                        <ThemedView style={sectionStyles.instruction}>
+                            <ThemedText>{item.step_number}. {item.description}</ThemedText>
+                            {
+                                Boolean(item.has_timer) && <ThemedText>Timer {item.timer_duration} min</ThemedText>
+                            }
+                        </ThemedView>
+                    )} /> 
+            }
+
+            { !isInstructions && 
+                <FlatList
+                    style={ globalStyles.flatListContainer }
+                    contentContainerStyle={ [globalStyles.flatListSafeArea, sectionStyles.listContainer] }
+                    data={ingredients}
+                    ListHeaderComponent={listHeader()}
+                    ListFooterComponent={listFooter()}
+                    renderItem={({ item }) => (
+                        <ThemedView style={sectionStyles.ingredient}>
+                            <ThemedText>{ recipe ? fractionSring(item.quantity * (servingSlider/recipe.serving_count)) : 0 } {item.unit} of {item.name} </ThemedText>
+                        </ThemedView>
+                    )} />
+            }
+        </ThemedView>
+    );
 }
 
 const sectionStyles = StyleSheet.create({

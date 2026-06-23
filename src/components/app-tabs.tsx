@@ -35,7 +35,7 @@ export default function AppTabs() {
         />
       </NativeTabs.Trigger>*/}
 
-      <NativeTabs.Trigger name="views/recipe-book">
+      <NativeTabs.Trigger name="recipe-book">
         <NativeTabs.Trigger.Label>Recipes</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
           src={require('@/assets/images/tabIcons/icons-books-50.png')}

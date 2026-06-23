@@ -7,7 +7,13 @@ import { useCallback, useState } from 'react';
 export function useDatabaseRecipes() {
     const db = useSQLiteContext();
     const [recipes, setRecipes] = useState<Recipe[]>([]);
-    const [recipeById, setRecipeById] = useState<Recipe | null>();
+    
+    const [recipe, setRecipe] = useState<Recipe | null>();
+    const [tags, setTags] = useState<Tag[]>([]);
+    const [ingredients, setIngredients] = useState<Ingredient[]>([]);
+    const [instructions, setInstructions] = useState<Instruction[]>([]);
+    const [notes, setNotes] = useState<Note[]>([]);
+
     const [isLoading, setIsLoading] = useState(false);
 
     /**
@@ -43,14 +49,42 @@ export function useDatabaseRecipes() {
     /**
      * Get a specific recipe from the database.
      */
-    const fetchRecipeById = useCallback(async (recipeId : string) => {
+    const fetchRecipeWithDetails = useCallback(async (recipeId : string) => {
         setIsLoading(true);
         try {
-            const result = await db.getFirstAsync<Recipe>(RECIPE_QUERIES.GET_RECIPE_BY_ID, [recipeId])
-            setRecipeById(result);
+            // Run all queries simultaneously to reduce loading time
+            const [recipeResult, tagsResult, ingredientsResult, instructionsResult, notesResult] = await Promise.all([
+                db.getFirstAsync<Recipe>(RECIPE_QUERIES.GET_RECIPE_BY_ID, [recipeId]),
+                db.getAllAsync<Tag>(RECIPE_TAG_QUERIES.GET_RECIPE_TAGS, [recipeId]),
+                db.getAllAsync<Ingredient>(RECIPE_INGREDIENT_QUERIES.GET_RECIPE_INGREDIENTS, [recipeId]),
+                db.getAllAsync<Instruction>(RECIPE_INSTRUCTION_QUERIES.GET_RECIPE_INSTRUCTIONS, [recipeId]),
+                db.getAllAsync<Note>(RECIPE_NOTE_QUERIES.GET_RECIPE_NOTE, [recipeId])
+            ]);
+
+            setRecipe(recipeResult);
+
+            setTags(tagsResult);
+            /*tagsResult.map(e => {
+                    console.log("tag = " + e.name);
+            });*/
+
+            setIngredients(ingredientsResult);
+            /*ingredientsResult.map(e => {
+                    console.log("ingredients = { name: " + e.name + ", quantity: " + e.quantity + ", unit: " + e.unit + " }");
+            });*/
+
+            setInstructions(instructionsResult);
+            /*instructionsResult.map(e => {
+                    console.log("instructions = { step: " + e.step_number + ", desc: " + e.description + ", has_timer: " + e.has_timer + ", timer_duration: " + e.timer_duration + " }");
+            });*/
+
+            setNotes(notesResult);
+            /*notesResult.map(e => {
+                    console.log("notes = { created_at: " + e.created_at + ", content: " + e.content + " }");
+            });*/
             
         } catch (error) {
-            console.error("[db] Failed to fetch recipes", error);
+            console.error("[db] Failed to fetch recipe with details: ", error);
         } finally {
             setIsLoading(false);
         }
@@ -70,7 +104,6 @@ export function useDatabaseRecipes() {
                 await createIngredients(recipe.id, ingredients);
                 await createInstructions(recipe.id, instructions);
                 await createNotes(recipe.id, notes);
-        
         });
 
             console.log("[db] New recipe " + recipe.name + " created successfully!");
@@ -154,5 +187,5 @@ export function useDatabaseRecipes() {
         }
     };
 
-    return { recipes, recipeById, isLoading, fetchRecipes, fetchRecipeById, createRecipe, updateRecipe, deleteRecipe };
+    return { recipes, recipe, tags, ingredients, instructions, notes, isLoading, fetchRecipes, fetchRecipeWithDetails, createRecipe, updateRecipe, deleteRecipe };
 }

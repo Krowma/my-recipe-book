@@ -12,10 +12,10 @@ export function useDatabaseDetails() {
     const [instructions, setInstructions] = useState<Instruction[]>([]);
     const [notes, setNotes] = useState<Note[]>([]);
 
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoadingDetails, setIsLoadingDetails] = useState(false);
 
     const fetchDetails = useCallback(async (recipeId: string) => {
-        setIsLoading(true);
+        setIsLoadingDetails(true);
         try {
             // Run all queries simultaneously to reduce loading time
             const [tagsResult, ingredientsResult, instructionsResult, notesResult] = await Promise.all([
@@ -48,9 +48,9 @@ export function useDatabaseDetails() {
         } catch (error) {
             console.error("[db] Failed to fetch deep recipe details:", error);
         } finally {
-            setIsLoading(false);
+            setIsLoadingDetails(false);
         }
     }, [db]);
 
-    return { tags, ingredients, instructions, notes, isLoading, fetchDetails };
+    return { tags, ingredients, instructions, notes, isLoadingDetails, fetchDetails };
 }
