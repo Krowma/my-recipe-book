@@ -5,7 +5,7 @@ import FormListIngredients from "@/components/ui/form-list-ingredients";
 import FormListInstructions from "@/components/ui/form-list-instructions";
 import FormListNotes from "@/components/ui/form-list-notes";
 import FormListTags from "@/components/ui/form-list-tags";
-import { globalStyles, iconColors, iconSize } from "@/constants/styles";
+import { elementColors, globalStyles, iconSize } from "@/constants/styles";
 import { BottomTabInset, Spacing } from "@/constants/theme";
 import { useDatabaseFormValidation } from "@/hooks/use-database-form-validation";
 import { useDatabaseRecipes } from "@/hooks/use-database-recipes";
@@ -112,11 +112,11 @@ export default function ViewRecipeForm() {
 
             <ThemedView style={styles.viewTopBar}>
                 <Pressable onPress={() => router.back()}>
-                    <FontAwesomeFreeSolid name="chevron-circle-left" size={ iconSize.default } color={ iconColors.grey } />
+                    <FontAwesomeFreeSolid name="chevron-circle-left" size={ iconSize.default } color={ elementColors.grey } />
                 </Pressable> 
 
                 <Pressable onPress={methods.handleSubmit(onSubmit, onSubmitFail)}>
-                    <FontAwesomeFreeSolid name="check-circle" size={ iconSize.default } color={ iconColors.blue } />
+                    <FontAwesomeFreeSolid name="check-circle" size={ iconSize.default } color={ elementColors.blue } />
                 </Pressable> 
             </ThemedView>
 

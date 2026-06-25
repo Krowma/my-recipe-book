@@ -1,3 +1,4 @@
+import { elementColors } from '@/constants/styles';
 import { Colors } from '@/constants/theme';
 import { NativeTabs } from 'expo-router/unstable-native-tabs';
 import { useColorScheme } from 'react-native';
@@ -9,7 +10,7 @@ export default function AppTabs() {
   return (
     <NativeTabs
       backgroundColor={colors.background}
-      indicatorColor={colors.backgroundElement}
+      indicatorColor={elementColors.honey}
       labelStyle={{ selected: { color: colors.text } }}>
       <NativeTabs.Trigger name="index">
         <NativeTabs.Trigger.Label>Home</NativeTabs.Trigger.Label>
@@ -23,14 +24,6 @@ export default function AppTabs() {
         <NativeTabs.Trigger.Label>Explore</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
           src={require('@/assets/images/tabIcons/explore.png')}
-          renderingMode="template"
-        />
-      </NativeTabs.Trigger>*/}
-
-      {/*<NativeTabs.Trigger name="views/recipe-add-form">
-        <NativeTabs.Trigger.Label>Add a Recipe</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon
-          src={require('@/assets/images/tabIcons/icons-add-48.png')}
           renderingMode="template"
         />
       </NativeTabs.Trigger>*/}

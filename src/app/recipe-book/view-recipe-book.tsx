@@ -1,7 +1,7 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import FilterBar from '@/components/ui/filter-bar';
-import { globalStyles, iconColors, iconSize } from '@/constants/styles';
+import { backgroundColors, elementColors, globalStyles, iconSize } from '@/constants/styles';
 import { BottomTabInset, Spacing } from "@/constants/theme";
 import { useDatabaseRecipes } from '@/hooks/use-database-recipes';
 import { useTheme } from "@/hooks/use-theme";
@@ -96,18 +96,18 @@ export default function ViewRecipeBook() {
             <ThemedView style={globalStyles.viewTopBar}>
                 <Link href={{ pathname:"/recipe-book/view-recipe-form" }} asChild>
                     <Pressable>
-                        <FontAwesomeFreeSolid name="add" size={ iconSize.default } color={ iconColors.grey } />
+                        <FontAwesomeFreeSolid name="add" size={ iconSize.default } color={ elementColors.grey } />
                     </Pressable>
                 </Link>
                 
                 <Pressable
                     onPress={handleFavoritesCallback}>
-                    <FontAwesomeFreeSolid name="heart" size={ iconSize.default } color={ iconColors.red } />
+                    <FontAwesomeFreeSolid name="heart" size={ iconSize.default } color={ elementColors.red } />
                 </Pressable>
 
                 <Pressable
                     onPress={handleCookingListCallback}>
-                    <FontAwesomeFreeSolid name="utensils" size={ iconSize.default } color={ iconColors.grey } />
+                    <FontAwesomeFreeSolid name="utensils" size={ iconSize.default } color={ elementColors.grey } />
                 </Pressable>
             </ThemedView>
 
@@ -122,7 +122,7 @@ export default function ViewRecipeBook() {
                 numColumns={numColumns}
                 data={recipes}
                 renderItem={({ item }) => (
-                    <ThemedView style={ [cardStyle.cardContainer, {backgroundColor: theme['backgroundElement']}] }> 
+                    <View style={ cardStyle.cardContainer }> 
                         {isInDeleteMode && 
                             <TouchableOpacity 
                                 style={cardStyle.deleteButton} 
@@ -134,12 +134,12 @@ export default function ViewRecipeBook() {
                         <Pressable
                             onPress={() => handleRecipePressed(item)}
                             onLongPress={() => setIsInDeleteMode(() => !isInDeleteMode)}>
-                                {item.image && item.image != "" && <Image 
-                                    source={{ uri: item.image }} 
-                                    style={cardStyle.recipeImage} />}
+                                <Image 
+                                    source={ item.image && item.image != "" ? { uri: item.image } : imagePlaceholder } 
+                                    style={cardStyle.recipeImage} />
                                 <ThemedText style={cardStyle.recipeName}>{item.name}</ThemedText>
                         </Pressable>
-                    </ThemedView>
+                    </View>
                 )}
             />
         </ThemedView>
@@ -154,18 +154,23 @@ const cardStyle = StyleSheet.create({
         margin: 5,
         borderRadius: Spacing.three,
         maxWidth: '50%',
-        minHeight: 180,
+        minHeight: 150,
+        maxHeight: 200,
         position: 'relative',
+        overflow: 'hidden',
+        backgroundColor: backgroundColors.listContent
     },
 
     recipeName: {
+        paddingVertical: Spacing.two,
         fontWeight:"bold",
-        fontSize: 14
+        fontSize: 16,
+        lineHeight: 18,
     },
 
     recipeImage: {
         width: '100%',
-        aspectRatio: 296 / 171,
+        height: 100,
         borderRadius: Spacing.three,
         marginTop: Spacing.two,
     },
@@ -186,7 +191,8 @@ const cardStyle = StyleSheet.create({
 const styles = StyleSheet.create({
 
     filterContainer: {
-        paddingVertical: Spacing.two
+        paddingTop: Spacing.four,
+        paddingBottom: Spacing.two
     },
 
     gridContainer: {

@@ -1,12 +1,25 @@
 import { BottomTabInset, Spacing } from "@/constants/theme";
 import { StyleSheet } from 'react-native';
 
+/* --- Color Schemes --- */
+export const elementColors = {
+    grey: 'rgb(9, 9, 9)',
+    red: 'rgb(223, 46, 46)',
+    blue: 'hsl(218, 68%, 48%)',
+    honey: '#EC9706'
+} as const;
+
+export const backgroundColors = {
+    topBar: "#fcd396",
+    screen: '#faf0e6',
+    listContent: '#ffffff',
+} as const;
+
 export const globalStyles = StyleSheet.create({
     /* --- Common containers --- */
     topLevelContainer: {
         flexDirection: "column",
         flexGrow: 1,
-        backgroundColor: "white",
     },
 
     viewTitleContainer: {
@@ -20,7 +33,7 @@ export const globalStyles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-evenly',
-        backgroundColor: '#c19c36',
+        backgroundColor: backgroundColors.topBar,
         paddingVertical: Spacing.two,
     
         zIndex: 999, // Guarantees it stays above scrolling content
@@ -30,24 +43,16 @@ export const globalStyles = StyleSheet.create({
     flatListContainer: {
         flexDirection: "column",
         flexGrow: 1,
-        backgroundColor: "white",
+        backgroundColor: backgroundColors.screen,
         paddingTop: Spacing.three,
         paddingHorizontal: Spacing.three,
     },
 
     flatListSafeArea: {
-        paddingBottom: BottomTabInset + Spacing.six
+        paddingBottom: BottomTabInset + Spacing.two
     }
-
-    /* --- Common buttons --- */
-
 });
 
 
-export const iconColors = {
-    grey: 'rgb(9, 9, 9)',
-    red: 'rgb(223, 46, 46)',
-    blue: 'hsl(218, 68%, 48%)'
-} as const;
 
 export const iconSize = { default: 30 } as const;

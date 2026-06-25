@@ -1,14 +1,14 @@
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
-import { globalStyles, iconColors, iconSize } from '@/constants/styles';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+import { backgroundColors, elementColors, globalStyles, iconSize } from '@/constants/styles';
+import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useDatabaseRecipes } from '@/hooks/use-database-recipes';
 import Slider from '@expo/ui/community/slider';
 import { FontAwesomeFreeSolid } from "@react-native-vector-icons/fontawesome-free-solid";
 import { Link, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import Fraction from 'fraction.js';
 import { useCallback, useState } from 'react';
-import { FlatList, Image, Platform, Pressable, StyleSheet } from 'react-native';
+import { FlatList, Image, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 
@@ -48,7 +48,6 @@ export default function ViewRecipe() {
     const safeAreaInsets = useSafeAreaInsets();
     const insets = {
         ...safeAreaInsets,
-        bottom: safeAreaInsets.bottom + BottomTabInset + Spacing.three,
     };
     
     const contentPlatformStyle = Platform.select({
@@ -103,12 +102,12 @@ export default function ViewRecipe() {
                 <ThemedView style={sectionStyles.buttonContainer}>
                     <Pressable
                         onPress={() => setIsInstructions(() => false)}>
-                        <ThemedText style={[sectionStyles.sectionTitle, !isInstructions && sectionStyles.sectionTitlePressed]}>Ingredients</ThemedText>
+                        <ThemedText type='section' style={[sectionStyles.sectionTitle, !isInstructions && sectionStyles.sectionTitlePressed]}>Ingredients</ThemedText>
                     </Pressable>
                     
                     <Pressable
                         onPress={() => setIsInstructions(() => true)}>
-                        <ThemedText style={[sectionStyles.sectionTitle, isInstructions && sectionStyles.sectionTitlePressed]}>Instructions</ThemedText>
+                        <ThemedText type='section' style={[sectionStyles.sectionTitle, isInstructions && sectionStyles.sectionTitlePressed]}>Instructions</ThemedText>
                     </Pressable>
                 </ThemedView>
 
@@ -122,9 +121,9 @@ export default function ViewRecipe() {
                             step={1}
                             value={servingSlider}
                             onValueChange={(value : number) => setServingSlider(value)}
-                            minimumTrackTintColor="#1FB28A"
+                            minimumTrackTintColor="#EC9706"
                             maximumTrackTintColor="#D3D3D3"
-                            thumbTintColor="#1FB28A"
+                            thumbTintColor="#EC9706"
                         />
                     </ThemedView>
                 }    
@@ -149,23 +148,31 @@ export default function ViewRecipe() {
         const simpleFraction = fraction.simplify(0.1).toFraction(true);
         return `${simpleFraction}`;
     }
+
+    const itemStyle = (index: number, last: number) => {
+        return [
+            sectionStyles.sectionItem,
+            index == 0 && sectionStyles.roundTop,
+            index == last && sectionStyles.roundBottom,
+        ];
+    }
     
     return(
         <ThemedView style={ [globalStyles.topLevelContainer, contentPlatformStyle] }>
             <ThemedView style={globalStyles.viewTopBar}>
                 <Pressable
                     onPress={() => router.back()}>
-                        <FontAwesomeFreeSolid name="chevron-circle-left" size={ iconSize.default } color={ iconColors.grey } />
+                        <FontAwesomeFreeSolid name="chevron-circle-left" size={ iconSize.default } color={ elementColors.grey } />
                 </Pressable> 
 
                 <Pressable
                     onPress={handleFavoriteCallback}>
-                    <FontAwesomeFreeSolid name="heart" size={ iconSize.default } color={ iconColors.red } />
+                    <FontAwesomeFreeSolid name="heart" size={ iconSize.default } color={ elementColors.red } />
                 </Pressable>
                 
                 <Link href={{ pathname:"/recipe-book/view-recipe-form", params: {recipeId: recipeId} }} asChild>
                     <Pressable>
-                        <FontAwesomeFreeSolid name="pen-to-square" size={ iconSize.default } color={ iconColors.grey } />
+                        <FontAwesomeFreeSolid name="pen-to-square" size={ iconSize.default } color={ elementColors.grey } />
                     </Pressable>
                 </Link>
             </ThemedView>
@@ -173,31 +180,39 @@ export default function ViewRecipe() {
             { isInstructions && 
                 <FlatList
                     style={ globalStyles.flatListContainer }
-                    contentContainerStyle={ [globalStyles.flatListSafeArea, sectionStyles.listContainer] }
+                    contentContainerStyle={ sectionStyles.listContainer }
+                    ListFooterComponentStyle={ globalStyles.flatListSafeArea }
                     data={instructions}
                     ListHeaderComponent={listHeader()}
                     ListFooterComponent={listFooter()}
-                    renderItem={({ item }) => (
-                        <ThemedView style={sectionStyles.instruction}>
-                            <ThemedText>{item.step_number}. {item.description}</ThemedText>
-                            {
-                                Boolean(item.has_timer) && <ThemedText>Timer {item.timer_duration} min</ThemedText>
-                            }
-                        </ThemedView>
+                    renderItem={({ item, index }) => (
+                        <View style={ itemStyle(index, instructions.length - 1) }>
+                            <View style={sectionStyles.sectionItemRow}>
+                                <ThemedText style={{ color: elementColors.honey }}>{item.step_number}.</ThemedText> 
+                                <ThemedText>{item.description}</ThemedText>
+                            </View>
+                            { Boolean(item.has_timer) && <ThemedText style={{ paddingLeft: Spacing.five }}>Timer {item.timer_duration} min</ThemedText> }
+                            <View style={ sectionStyles.itemLine } />
+                        </View>
                     )} /> 
             }
 
             { !isInstructions && 
                 <FlatList
                     style={ globalStyles.flatListContainer }
-                    contentContainerStyle={ [globalStyles.flatListSafeArea, sectionStyles.listContainer] }
+                    contentContainerStyle={ sectionStyles.listContainer }
                     data={ingredients}
                     ListHeaderComponent={listHeader()}
+                    ListFooterComponentStyle={ globalStyles.flatListSafeArea }
                     ListFooterComponent={listFooter()}
-                    renderItem={({ item }) => (
-                        <ThemedView style={sectionStyles.ingredient}>
-                            <ThemedText>{ recipe ? fractionSring(item.quantity * (servingSlider/recipe.serving_count)) : 0 } {item.unit} of {item.name} </ThemedText>
-                        </ThemedView>
+                    renderItem={({ item, index }) => (
+                        <View style={ itemStyle(index, ingredients.length - 1) }>
+                            <View style={sectionStyles.sectionItemRow}>
+                                <ThemedText type='bold'>{ recipe ? fractionSring(item.quantity * (servingSlider/recipe.serving_count)) : 0 } {item.unit}</ThemedText>
+                                <ThemedText> {item.name}</ThemedText>  
+                            </View>
+                            <View style={ sectionStyles.itemLine } />
+                        </View>
                     )} />
             }
         </ThemedView>
@@ -208,34 +223,55 @@ const sectionStyles = StyleSheet.create({
     buttonContainer: {
         gap: Spacing.four,
         flexDirection: 'row',
-        paddingHorizontal: Spacing.five,
-        paddingTop: Spacing.four,
+        paddingHorizontal: Spacing.three,
+        paddingTop: Spacing.three,
         paddingBottom: Spacing.two,
     },
     sectionTitle:{
     },
     sectionTitlePressed: {
         textDecorationLine:"underline",
-        fontWeight:"bold"
+        fontWeight:"bold",
+        color: elementColors.honey
     },
 
     listContainer: {
         maxWidth: MaxContentWidth,
     },
-    ingredient: {
-        paddingHorizontal: Spacing.three,
-        paddingVertical: Spacing.one,
+    sectionItem: {
+        paddingHorizontal: Spacing.four,
+        paddingTop: Spacing.two,
+        paddingBottom: Spacing.two,
+        backgroundColor: backgroundColors.listContent,
     },
-    instruction:{
-        paddingHorizontal: Spacing.three,
-        paddingVertical: Spacing.two,
+    sectionItemRow: {
+        flexDirection:'row', 
+        gap: 3
+    },
+
+    itemLine: { 
+        borderBottomColor: 'black', 
+        borderBottomWidth: StyleSheet.hairlineWidth, 
+        marginHorizontal: Spacing.one, 
+        paddingTop: Spacing.one, 
+        paddingBottom: Spacing.one
+    },
+
+    roundTop: {
+        borderTopLeftRadius: 16,
+        borderTopRightRadius: 16,
+    },
+    roundBottom: {
+        borderBottomLeftRadius: 16,
+        borderBottomRightRadius: 16,
+        borderBottomWidth: 0, // Prevents double border at the very bottom
     },
 
     sliderContainer: {
         flexDirection: 'row',
         alignItems: "center",
         gap: Spacing.two,
-        paddingHorizontal: Spacing.five,
+        paddingHorizontal: Spacing.three,
         maxWidth: MaxContentWidth,
     },
     slider: {
@@ -263,7 +299,7 @@ const styles = StyleSheet.create({
     },
     imageContainer: {
         flex: 1,
-        padding: 20,
+        paddingHorizontal: 20,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -272,7 +308,7 @@ const styles = StyleSheet.create({
         gap: Spacing.two,
         flexDirection: 'row',
         flexWrap: 'wrap',
-        paddingHorizontal: Spacing.five,
+        paddingHorizontal: Spacing.three,
     },
     tagElement:{
         borderRadius: Spacing.five,
@@ -282,7 +318,7 @@ const styles = StyleSheet.create({
 
     notesContainer: {
         paddingHorizontal: Spacing.three,
-        paddingVertical: Spacing.two,
+        paddingVertical: Spacing.three,
         flexGrow: 1,
         flexDirection: 'column',
         justifyContent: 'center',
