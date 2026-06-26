@@ -2,7 +2,6 @@ import { ThemedText } from "@/components/themed-text";
 import { formStyles } from "@/constants/formStyle";
 import { elementColors } from "@/constants/styles";
 import { Spacing } from "@/constants/theme";
-import { useTheme } from "@/hooks/use-theme";
 import { Ingredient, Instruction, Note, Recipe, Tag } from "@/types/recipe.types";
 import { randomUUID } from 'expo-crypto';
 import { Control, Controller, useFieldArray } from 'react-hook-form';
@@ -22,8 +21,6 @@ interface InstructionsSectionProps {
 
 export default function FormListInstructions({ control }: InstructionsSectionProps) {
 
-    const theme = useTheme();
-    
      // Connect useFieldArray to the useForm control object
     const { fields, append, remove } = useFieldArray({
         control,

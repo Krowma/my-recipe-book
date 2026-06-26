@@ -1,10 +1,10 @@
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
+import { elementColors } from '@/constants/styles';
 import { Spacing } from '@/constants/theme';
 import { useDatabaseFilters } from "@/hooks/use-database-filters";
 import { Tag } from '@/types/recipe.types';
 import { useEffect, useState } from "react";
-import { FlatList, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { FlatList, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 
 
 interface FilterBarProps {
@@ -48,9 +48,9 @@ export default function FilterBar({ selectedTags, setSelectedTags }: FilterBarPr
     };
 
     return(
-        <ThemedView style={styles.filterBarContainer}>
+        <View style={styles.filterBarContainer}>
             {/* Input to enter tags */}
-            <ThemedView style={styles.inputWrapper}>
+            <View style={styles.inputWrapper}>
                 <TextInput
                     style={styles.input}
                     placeholder="Type to search..."
@@ -61,7 +61,7 @@ export default function FilterBar({ selectedTags, setSelectedTags }: FilterBarPr
 
                 {/* Autocomplete Dropdown */}
                 {suggestions.length > 0 && (
-                    <ThemedView style={styles.dropdown}>
+                    <View style={styles.dropdown}>
                         <FlatList
                             data={suggestions}
                             keyExtractor={(item) => item.name}
@@ -74,25 +74,25 @@ export default function FilterBar({ selectedTags, setSelectedTags }: FilterBarPr
                                 </TouchableOpacity>
                             )}
                         />
-                    </ThemedView>
+                    </View>
                 )}
-            </ThemedView>
+            </View>
 
             {/* Display selected tags */}
-            <ThemedView style={styles.filtersContainer}>
+            <View style={styles.filtersContainer}>
                 <ThemedText type="default">Filter by :</ThemedText>
                 {
                     selectedTags.map((tag, index) => (
-                        <ThemedView key={tag.id} style={styles.filterElement}>
+                        <View key={tag.id} style={styles.filterElement}>
                             <ThemedText type="small">{tag.name}</ThemedText>
                             <TouchableOpacity onPress={() => setSelectedTags(selectedTags.filter(t => t !== tag))}>
                                 <ThemedText type="small"> ×</ThemedText>
                             </TouchableOpacity>    
-                        </ThemedView>
+                        </View>
                     ))
                 }
-            </ThemedView>
-        </ThemedView>
+            </View>
+        </View>
     );
 }
 
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     },
     filterElement: {
         flexDirection: 'row',
-        backgroundColor: '#007AFF',
+        backgroundColor: elementColors.honey,
         borderRadius: 20,
         paddingHorizontal: Spacing.two,
         paddingVertical: 6,

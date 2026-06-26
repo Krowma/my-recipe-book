@@ -1,5 +1,4 @@
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import { backgroundColors, elementColors, globalStyles, iconSize } from '@/constants/styles';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { useDatabaseRecipes } from '@/hooks/use-database-recipes';
@@ -77,29 +76,29 @@ export default function ViewRecipe() {
      */
     function listHeader() {
         return(
-            <ThemedView style={globalStyles.topLevelContainer}>
-                <ThemedView style={styles.imageContainer}>
+            <View style={globalStyles.topLevelContainer}>
+                <View style={styles.imageContainer}>
                     <Image 
                         source={ recipe && recipe.image != "" ? { uri: recipe.image } : imagePlaceholder }
                         style={styles.recipeImage} />
-                </ThemedView>
+                </View>
 
-                <ThemedView style={styles.recipeNameContainer}>
+                <View style={styles.recipeNameContainer}>
                     <ThemedText type="subtitle" style={styles.recipeName}>{ recipe? recipe.name : "" }</ThemedText> 
-                </ThemedView>
+                </View>
 
-                <ThemedView style={styles.tagsContainer}>
+                <View style={styles.tagsContainer}>
                     {
                         tags.map((element, index) => (
-                            <ThemedView key={index} type="backgroundElement" style={styles.tagElement}>
+                            <View key={index} style={styles.tagElement}>
                                 <ThemedText type="small">{element.name}</ThemedText>
-                            </ThemedView>
+                            </View>
                         ))
                     } 
-                </ThemedView>
+                </View>
 
                 {/* Buttons to switch between ingredients and instructions */}
-                <ThemedView style={sectionStyles.buttonContainer}>
+                <View style={sectionStyles.buttonContainer}>
                     <Pressable
                         onPress={() => setIsInstructions(() => false)}>
                         <ThemedText type='section' style={[sectionStyles.sectionTitle, !isInstructions && sectionStyles.sectionTitlePressed]}>Ingredients</ThemedText>
@@ -109,10 +108,10 @@ export default function ViewRecipe() {
                         onPress={() => setIsInstructions(() => true)}>
                         <ThemedText type='section' style={[sectionStyles.sectionTitle, isInstructions && sectionStyles.sectionTitlePressed]}>Instructions</ThemedText>
                     </Pressable>
-                </ThemedView>
+                </View>
 
                 {!isInstructions &&
-                    <ThemedView style={sectionStyles.sliderContainer}> 
+                    <View style={sectionStyles.sliderContainer}> 
                         <ThemedText type="smallBold">Servings {servingSlider}</ThemedText>
                         <Slider
                             style={sectionStyles.slider}
@@ -121,25 +120,25 @@ export default function ViewRecipe() {
                             step={1}
                             value={servingSlider}
                             onValueChange={(value : number) => setServingSlider(value)}
-                            minimumTrackTintColor="#EC9706"
-                            maximumTrackTintColor="#D3D3D3"
-                            thumbTintColor="#EC9706"
+                            minimumTrackTintColor={elementColors.honey}
+                            maximumTrackTintColor={elementColors.grey}
+                            thumbTintColor={elementColors.honey}
                         />
-                    </ThemedView>
+                    </View>
                 }    
-            </ThemedView>
+            </View>
         );
     }
 
     function listFooter() {
         return(
-            <ThemedView style={styles.notesContainer}>
-                {
-                    notes.map((element, index) => (
+            <View style={styles.notesContainer}>
+                { notes.map((element, index) => (
+                    <View key={index} style={styles.noteElement}> 
                         <ThemedText key={index} type="small">{element.content}</ThemedText>
-                    ))
-                }
-            </ThemedView>
+                    </View>
+                )) }
+            </View>
         );
     }
 
@@ -158,11 +157,11 @@ export default function ViewRecipe() {
     }
     
     return(
-        <ThemedView style={ [globalStyles.topLevelContainer, contentPlatformStyle] }>
-            <ThemedView style={globalStyles.viewTopBar}>
+        <View style={ [globalStyles.topLevelContainer, contentPlatformStyle] }>
+            <View style={globalStyles.viewTopBar}>
                 <Pressable
                     onPress={() => router.back()}>
-                        <FontAwesomeFreeSolid name="chevron-circle-left" size={ iconSize.default } color={ elementColors.grey } />
+                        <FontAwesomeFreeSolid name="chevron-circle-left" size={ iconSize.default } color={ elementColors.black } />
                 </Pressable> 
 
                 <Pressable
@@ -172,10 +171,10 @@ export default function ViewRecipe() {
                 
                 <Link href={{ pathname:"/recipe-book/view-recipe-form", params: {recipeId: recipeId} }} asChild>
                     <Pressable>
-                        <FontAwesomeFreeSolid name="pen-to-square" size={ iconSize.default } color={ elementColors.grey } />
+                        <FontAwesomeFreeSolid name="pen-to-square" size={ iconSize.default } color={ elementColors.black } />
                     </Pressable>
                 </Link>
-            </ThemedView>
+            </View>
 
             { isInstructions && 
                 <FlatList
@@ -215,7 +214,7 @@ export default function ViewRecipe() {
                         </View>
                     )} />
             }
-        </ThemedView>
+        </View>
     );
 }
 
@@ -225,7 +224,7 @@ const sectionStyles = StyleSheet.create({
         flexDirection: 'row',
         paddingHorizontal: Spacing.three,
         paddingTop: Spacing.three,
-        paddingBottom: Spacing.two,
+        paddingBottom: Spacing.half,
     },
     sectionTitle:{
     },
@@ -272,10 +271,12 @@ const sectionStyles = StyleSheet.create({
         alignItems: "center",
         gap: Spacing.two,
         paddingHorizontal: Spacing.three,
+        paddingBottom: Spacing.one,
         maxWidth: MaxContentWidth,
     },
     slider: {
         width: MaxContentWidth * 0.3,
+        
     },
 });
 
@@ -283,12 +284,13 @@ const styles = StyleSheet.create({
     recipeNameContainer: {
         flex:1,
         paddingHorizontal: Spacing.three,
-        paddingVertical: Spacing.two,
+        paddingBottom: Spacing.two,
     },
 
     recipeName: {
         flexShrink: 1,
-        fontSize: 28,
+        fontSize: 26,
+        lineHeight: 30
     },
     recipeImage: {
         width: '100%',
@@ -305,22 +307,29 @@ const styles = StyleSheet.create({
     },
 
     tagsContainer: {
-        gap: Spacing.two,
+        gap: Spacing.one,
         flexDirection: 'row',
         flexWrap: 'wrap',
-        paddingHorizontal: Spacing.three,
+        paddingLeft: Spacing.three,
     },
     tagElement:{
-        borderRadius: Spacing.five,
+        flexDirection: 'row',
+        backgroundColor: elementColors.honey,
+        borderRadius: 20,
         paddingHorizontal: Spacing.two,
         paddingVertical: Spacing.one,
+        alignItems: 'center',
     },
 
     notesContainer: {
         paddingHorizontal: Spacing.three,
         paddingVertical: Spacing.three,
         flexGrow: 1,
+        gap: Spacing.three,
         flexDirection: 'column',
         justifyContent: 'center',
+    },
+    noteElement: {
+        flexGrow: 1,
     },
 });

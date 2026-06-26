@@ -1,7 +1,6 @@
 import { ThemedText } from "@/components/themed-text";
 import { formStyles } from "@/constants/formStyle";
 import { Spacing } from "@/constants/theme";
-import { useTheme } from "@/hooks/use-theme";
 import { Ingredient, Instruction, Note, Recipe, Tag } from '@/types/recipe.types';
 import { randomUUID } from "expo-crypto";
 import { Control, Controller, useFieldArray, useFormContext } from 'react-hook-form';
@@ -21,9 +20,6 @@ interface IngredientsSectionProps {
 }
 
 export default function FormListIngredients({ control }: IngredientsSectionProps) {
-
-    const theme = useTheme();
-
     const { formState: { errors } } = useFormContext<RecipeFormValues>();
 
     // Connect useFieldArray to the useForm control object

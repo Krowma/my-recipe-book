@@ -3,7 +3,8 @@ import { StyleSheet } from 'react-native';
 
 /* --- Color Schemes --- */
 export const elementColors = {
-    grey: 'rgb(9, 9, 9)',
+    black: 'rgb(9, 9, 9)',
+    grey: "#D3D3D3",
     red: 'rgb(223, 46, 46)',
     blue: 'hsl(218, 68%, 48%)',
     honey: '#EC9706'
@@ -20,6 +21,7 @@ export const globalStyles = StyleSheet.create({
     topLevelContainer: {
         flexDirection: "column",
         flexGrow: 1,
+        backgroundColor: backgroundColors.lightOrange
     },
 
     viewTitleContainer: {

@@ -1,5 +1,4 @@
 import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
 import FilterBar from '@/components/ui/filter-bar';
 import { backgroundColors, elementColors, globalStyles, iconSize } from '@/constants/styles';
 import { BottomTabInset, Spacing } from "@/constants/theme";
@@ -87,16 +86,23 @@ export default function ViewRecipeBook() {
     const numColumns = 2;
     const imagePlaceholder = require('@/assets/images/image-not-found.png');
 
-    return (
-        <ThemedView style={[globalStyles.topLevelContainer, contentPlatformStyle]}>
-            <ThemedView style={ globalStyles.viewTitleContainer }>
-                <ThemedText type="subtitle">Recipe Book</ThemedText>
-            </ThemedView>
+    function listFooter() {
+        return(
+            <View>
+            </View>
+        );
+    }
 
-            <ThemedView style={globalStyles.viewTopBar}>
+    return (
+        <View style={[globalStyles.topLevelContainer, contentPlatformStyle]}>
+            <View style={ globalStyles.viewTitleContainer }>
+                <ThemedText type="subtitle">Recipe Book</ThemedText>
+            </View>
+
+            <View style={globalStyles.viewTopBar}>
                 <Link href={{ pathname:"/recipe-book/view-recipe-form" }} asChild>
                     <Pressable>
-                        <FontAwesomeFreeSolid name="add" size={ iconSize.default } color={ elementColors.grey } />
+                        <FontAwesomeFreeSolid name="add" size={ iconSize.default } color={ elementColors.black } />
                     </Pressable>
                 </Link>
                 
@@ -107,20 +113,22 @@ export default function ViewRecipeBook() {
 
                 <Pressable
                     onPress={handleCookingListCallback}>
-                    <FontAwesomeFreeSolid name="utensils" size={ iconSize.default } color={ elementColors.grey } />
+                    <FontAwesomeFreeSolid name="utensils" size={ iconSize.default } color={ elementColors.black } />
                 </Pressable>
-            </ThemedView>
+            </View>
 
-            <ThemedView style={styles.filterContainer}>
+            <View style={styles.filterContainer}>
                 <FilterBar selectedTags={selectedTags} setSelectedTags={setSelectedTags}/>
                 <View style={{ borderBottomColor: 'black', borderBottomWidth: StyleSheet.hairlineWidth, marginHorizontal: Spacing.three, paddingVertical: Spacing.two}} />
-            </ThemedView>
+            </View>
             
             <FlatList
                 style={ globalStyles.flatListContainer }
                 contentContainerStyle={[globalStyles.flatListSafeArea, styles.gridContainer]}
+                ListFooterComponentStyle={ globalStyles.flatListSafeArea }
                 numColumns={numColumns}
                 data={recipes}
+                ListFooterComponent={listFooter()}
                 renderItem={({ item }) => (
                     <View style={ cardStyle.cardContainer }> 
                         {isInDeleteMode && 
@@ -142,7 +150,7 @@ export default function ViewRecipeBook() {
                     </View>
                 )}
             />
-        </ThemedView>
+        </View>
     );
 }
 

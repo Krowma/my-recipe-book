@@ -1,5 +1,4 @@
 import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
 import { Collapsible } from "@/components/ui/collapsible";
 import FormListIngredients from "@/components/ui/form-list-ingredients";
 import FormListInstructions from "@/components/ui/form-list-instructions";
@@ -106,27 +105,27 @@ export default function ViewRecipeForm() {
     }, []);
 
     return(
-        <ThemedView style={[globalStyles.topLevelContainer, contentPlatformStyle]}>
-            <ThemedView style={ globalStyles.viewTitleContainer }>
+        <View style={[globalStyles.topLevelContainer, contentPlatformStyle]}>
+            <View style={ globalStyles.viewTitleContainer }>
                 <ThemedText type="subtitle">Edit your Recipe</ThemedText>
-            </ThemedView>
+            </View>
 
-            <ThemedView style={styles.viewTopBar}>
+            <View style={styles.viewTopBar}>
                 <Pressable onPress={() => router.back()}>
-                    <FontAwesomeFreeSolid name="chevron-circle-left" size={ iconSize.default } color={ elementColors.grey } />
+                    <FontAwesomeFreeSolid name="chevron-circle-left" size={ iconSize.default } color={ elementColors.black } />
                 </Pressable> 
 
                 <Pressable onPress={methods.handleSubmit(onSubmit, onSubmitFail)}>
                     <FontAwesomeFreeSolid name="check-circle" size={ iconSize.default } color={ elementColors.blue } />
                 </Pressable> 
-            </ThemedView>
+            </View>
 
             <ScrollView 
                 style={ globalStyles.flatListContainer } 
                 contentContainerStyle={ [styles.scrollView, {paddingBottom: 300}] } >
 
                 <FormProvider {...methods} >
-                    <ThemedView style={styles.formContainer}>
+                    <View style={styles.formContainer}>
                         <View style={formStyles.sectionContainer}>
                             {/* name */}
                             <View style={styles.fieldContainer}>
@@ -198,9 +197,9 @@ export default function ViewRecipeForm() {
 
                         {/* tags */}
                         <Collapsible title="Tags">
-                            <ThemedView style={formStyles.fieldContainer}>
+                            <View style={formStyles.fieldContainer}>
                                 <FormListTags control={methods.control}/>
-                            </ThemedView>
+                            </View>
                         </Collapsible>
 
                         {/* Ingredients */}
@@ -218,10 +217,10 @@ export default function ViewRecipeForm() {
                             <FormListNotes control={methods.control}/>
                         </Collapsible>
                         
-                    </ThemedView>
+                    </View>
                 </FormProvider>
             </ScrollView>
-        </ThemedView>
+        </View>
     );
 }
 
