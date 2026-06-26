@@ -158,7 +158,7 @@ const cardStyle = StyleSheet.create({
         maxHeight: 200,
         position: 'relative',
         overflow: 'hidden',
-        backgroundColor: backgroundColors.listContent
+        backgroundColor: backgroundColors.white
     },
 
     recipeName: {

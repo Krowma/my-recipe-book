@@ -242,7 +242,7 @@ const sectionStyles = StyleSheet.create({
         paddingHorizontal: Spacing.four,
         paddingTop: Spacing.two,
         paddingBottom: Spacing.two,
-        backgroundColor: backgroundColors.listContent,
+        backgroundColor: backgroundColors.white,
     },
     sectionItemRow: {
         flexDirection:'row', 

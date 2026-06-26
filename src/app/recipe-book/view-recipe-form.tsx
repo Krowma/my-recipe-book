@@ -5,6 +5,7 @@ import FormListIngredients from "@/components/ui/form-list-ingredients";
 import FormListInstructions from "@/components/ui/form-list-instructions";
 import FormListNotes from "@/components/ui/form-list-notes";
 import FormListTags from "@/components/ui/form-list-tags";
+import { formStyles } from "@/constants/formStyle";
 import { elementColors, globalStyles, iconSize } from "@/constants/styles";
 import { BottomTabInset, Spacing } from "@/constants/theme";
 import { useDatabaseFormValidation } from "@/hooks/use-database-form-validation";
@@ -15,7 +16,7 @@ import { randomUUID } from 'expo-crypto';
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect } from "react";
 import { Controller, FormProvider, SubmitErrorHandler, SubmitHandler, useForm } from "react-hook-form";
-import { Platform, Pressable, ScrollView, StyleSheet, TextInput } from 'react-native';
+import { Platform, Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 
@@ -125,11 +126,11 @@ export default function ViewRecipeForm() {
                 contentContainerStyle={ [styles.scrollView, {paddingBottom: 300}] } >
 
                 <FormProvider {...methods} >
-                    <ThemedView>
-                        {/* name */}
-                        <ThemedView style={styles.formContainer}>
-                            <ThemedView style={styles.fieldContainer}>
-                                <ThemedText type="small">Name </ThemedText>
+                    <ThemedView style={styles.formContainer}>
+                        <View style={formStyles.sectionContainer}>
+                            {/* name */}
+                            <View style={styles.fieldContainer}>
+                                <ThemedText>Name </ThemedText>
                                 <Controller
                                     control={methods.control}
                                     rules={{ required: true }}
@@ -139,19 +140,14 @@ export default function ViewRecipeForm() {
                                             onBlur={onBlur}
                                             onChangeText={onChange}
                                             value={value}
-                                            style={styles.inputField} />
+                                            style={formStyles.inputField} />
                                     )}
                                     name="recipe.name" />
-                            </ThemedView>
-
-                            {/* tags */}
-                            <ThemedView style={styles.fieldContainer}>
-                                <FormListTags control={methods.control}/>
-                            </ThemedView>
+                            </View>
 
                             {/* servings */}
-                            <ThemedView style={styles.fieldContainer}>
-                                <ThemedText type="small">Number of servings </ThemedText>
+                            <View style={styles.fieldContainer}>
+                                <ThemedText>Number of servings </ThemedText>
                                 <Controller
                                     control={methods.control}
                                     rules={{ required: true, }}
@@ -169,14 +165,14 @@ export default function ViewRecipeForm() {
                                             }}
                                             value={value !== null && value !== undefined ? String(value) : ''}
                                             keyboardType="numeric"
-                                            style={styles.inputField} />
+                                            style={formStyles.inputField} />
                                     )}
                                     name="recipe.serving_count" />
-                            </ThemedView>
+                            </View>
 
                             {/* duration */}
-                            <ThemedView style={styles.fieldContainer}>
-                                <ThemedText type="small">Total duration </ThemedText>
+                            <View style={styles.fieldContainer}>
+                                <ThemedText >Total duration </ThemedText>
                                 <Controller
                                     control={methods.control}
                                     rules={{ required: false, }}
@@ -194,28 +190,34 @@ export default function ViewRecipeForm() {
                                             }}
                                             value={value !== null && value !== undefined ? String(value) : ''}
                                             keyboardType="numeric"
-                                            style={styles.inputField}/>
+                                            style={formStyles.inputField}/>
                                     )}
                                     name="recipe.duration" />
+                            </View>
+                        </View>
+
+                        {/* tags */}
+                        <Collapsible title="Tags">
+                            <ThemedView style={formStyles.fieldContainer}>
+                                <FormListTags control={methods.control}/>
                             </ThemedView>
-                            
-                            {/* Ingredients */}
-                            <Collapsible title="Ingredients">
-                                <FormListIngredients control={methods.control}/>
-                            </Collapsible>
+                        </Collapsible>
 
-                            {/* Instrunctions */}
-                            <Collapsible title="Instructions">
-                                <FormListInstructions control={methods.control}/>
-                            </Collapsible>
-                            
-                            {/* Notes */}
-                            <Collapsible title="Notes">
-                                <FormListNotes control={methods.control}/>
-                            </Collapsible>
-                            
+                        {/* Ingredients */}
+                        <Collapsible title="Ingredients">
+                            <FormListIngredients control={methods.control}/>
+                        </Collapsible>
 
-                        </ThemedView>
+                        {/* Instrunctions */}
+                        <Collapsible title="Instructions">
+                            <FormListInstructions control={methods.control}/>
+                        </Collapsible>
+                        
+                        {/* Notes */}
+                        <Collapsible title="Notes">
+                            <FormListNotes control={methods.control}/>
+                        </Collapsible>
+                        
                     </ThemedView>
                 </FormProvider>
             </ScrollView>
@@ -247,16 +249,7 @@ const styles = StyleSheet.create({
         gap: 5
     },
     fieldContainer: {
-        flexDirection: 'row',
-        alignItems: "center",
-        gap: Spacing.two,
+        gap: Spacing.one,
         paddingHorizontal: Spacing.five,
-        borderBlockColor: "black"
-    },
-    inputField: {
-        borderColor: "black",
-        borderWidth: 1,
-        paddingLeft: Spacing.two,
-        paddingRight: Spacing.four
     },
 });

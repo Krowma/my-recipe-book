@@ -1,11 +1,12 @@
 import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
+import { formStyles } from "@/constants/formStyle";
+import { elementColors } from "@/constants/styles";
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import { Ingredient, Instruction, Note, Recipe, Tag } from "@/types/recipe.types";
 import { randomUUID } from 'expo-crypto';
 import { Control, Controller, useFieldArray } from 'react-hook-form';
-import { Button, StyleSheet, Switch, TextInput } from 'react-native';
+import { StyleSheet, Switch, TextInput, TouchableOpacity, View } from 'react-native';
 
 interface RecipeFormValues {
     recipe: Recipe;
@@ -30,32 +31,30 @@ export default function FormListInstructions({ control }: InstructionsSectionPro
     });
 
     return(
-        <ThemedView style={styles.sectionContainer}>
-            <ThemedView style={styles.rowContainer}>
-                <ThemedText>Instructions</ThemedText>
-                <Button title=" + " onPress={() => append({ id: randomUUID(),  step_number: fields.length + 1, description: "", has_timer: false, timer_duration: 0 })} />
-            </ThemedView>
-            
+        <View style={formStyles.sectionContainer}>
             {fields.map((field, index) => {
                 /*const hasTimer = useWatch({
                     control,
                     name: `instructions.${index}.has_timer`,
                 });*/
                 return (
-                    <ThemedView key={field.id} style={styles.elementContainer}> 
-                        <ThemedView style={styles.rowContainer}>
+                    <View key={field.id} style={ styles.listItemContainer }> 
+                        <View style={styles.rowContainer}>
                             {/* Button to remove this specific object */}
-                            <Button title="X" onPress={() => remove(index)} />
+                            <TouchableOpacity 
+                                style={formStyles.deleteButton} 
+                                onPress={() => remove(index)}>
+                                    <ThemedText type="smallBold">✕</ThemedText>
+                            </TouchableOpacity>
 
                             {/* step-number */}
                             <ThemedText type="smallBold">{index + 1}.</ThemedText>
                             
-                            <ThemedView style={styles.fieldContainer}>
+                            <View style={formStyles.fieldContainer}>
                                 {/* description */}
                                 <Controller
                                     name={`instructions.${index}.description` as const}
                                     control={control}
-                                    
                                     render={({ field: { onChange, onBlur, value } }) => (
                                         <TextInput
                                             placeholder="Type your instructions here..."
@@ -69,18 +68,18 @@ export default function FormListInstructions({ control }: InstructionsSectionPro
                                         />
                                     )}
                                 />
-                            </ThemedView>
-                        </ThemedView>
+                            </View>
+                        </View>
 
                         {/* timer */}
-                        <ThemedView style={styles.rowContainer}>
-                            <ThemedText type="small">Add timer </ThemedText>
+                        <View style={styles.timerRowContainer}>
+                            <ThemedText type="small">Timer </ThemedText>
                             <Controller
                                 name={`instructions.${index}.has_timer` as const}
                                 control={control}
                                 render={({ field: { onChange, value } }) => (
                                     <Switch
-                                        trackColor={{ false: '#767577', true: '#81b0ff' }}
+                                        trackColor={{ false: '#767577', true: elementColors.honey }}
                                         ios_backgroundColor="#3e3e3e"
                                         onValueChange={onChange}
                                         value={value} />
@@ -104,27 +103,32 @@ export default function FormListInstructions({ control }: InstructionsSectionPro
                                         }}
                                         value={value !== null && value !== undefined ? String(value) : ''}
                                         keyboardType="numeric"
-                                        style={styles.inputField} />
+                                        style={formStyles.inputField} />
                                 )} /> }
-                        </ThemedView>
-                    </ThemedView>
+                        </View>
+                    </View>
                 );
             })}
+
+            <View style={styles.rowContainer}>
+                <TouchableOpacity 
+                    style={formStyles.addButton} 
+                    onPress={() => append({ id: randomUUID(),  step_number: fields.length + 1, description: "", has_timer: false, timer_duration: 0 })}>
+                        <ThemedText type="smallBold">+</ThemedText>
+                </TouchableOpacity>
+
+                <ThemedText type="smallBold"> Add an instruction</ThemedText>
+            </View>
             
-        </ThemedView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    sectionContainer: {
-        flexDirection: "column",
-        flexGrow: 1,
-        backgroundColor: "white",
-        gap: Spacing.two
-    },
-    elementContainer: {
+    listItemContainer: {
         flexDirection: 'column',
         gap: Spacing.one,
+        paddingBottom: Spacing.two
     },
     rowContainer: {
         flexDirection: 'row',
@@ -132,30 +136,19 @@ const styles = StyleSheet.create({
         gap: Spacing.two,
         paddingHorizontal: Spacing.one,
     },
-    fieldContainer: {
+    timerRowContainer: {
+        flexDirection: 'row',
+        alignItems: "center",
         gap: Spacing.two,
-        paddingHorizontal: Spacing.one,
-        borderBlockColor: "black",
-        flex: 1,
-    },
-
-    timerfieldContainer: {
-        paddingHorizontal: Spacing.six,
-    },
-
-    inputField: {
-        borderColor: "black",
-        borderWidth: 1,
-        paddingLeft: Spacing.two,
-        paddingRight: Spacing.four,
+        paddingLeft: Spacing.six
     },
     instructionInputField: {
         flex: 1,
-        borderWidth: 1,
         paddingLeft: Spacing.two,
         minHeight: 50,
+        minWidth: '75%',
         justifyContent: "flex-start",
         textAlignVertical: 'top',
-        flexDirection: "row"
+        flexDirection: "row",
     },
 });

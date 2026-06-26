@@ -1,11 +1,11 @@
 import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
+import { formStyles } from "@/constants/formStyle";
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import { Ingredient, Instruction, Note, Recipe, Tag } from '@/types/recipe.types';
-import { randomUUID } from 'expo-crypto';
+import { randomUUID } from "expo-crypto";
 import { Control, Controller, useFieldArray, useFormContext } from 'react-hook-form';
-import { Button, StyleSheet, TextInput } from 'react-native';
+import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 
 
 interface RecipeFormValues {
@@ -34,20 +34,19 @@ export default function FormListIngredients({ control }: IngredientsSectionProps
 
 
     return(
-        <ThemedView style={styles.sectionContainer}>
-            <ThemedView style={styles.rowContainer}>
-                <ThemedText>Ingredients</ThemedText>
-                <Button title=" + " onPress={() => append({ id: randomUUID(),  name: "", quantity: 1, unit:"" })} />
-            </ThemedView>
-            
+        <View style={formStyles.sectionContainer}>
             {fields.map((field, index) => {
                 return (
-                    <ThemedView key={field.id} style={styles.elementContainer}> 
+                    <View key={field.id} style={styles.listItemContainer}> 
                         {/* Button to remove this specific object */}
-                        <Button title="X" onPress={() => remove(index)} />
+                        <TouchableOpacity 
+                            style={formStyles.deleteButton} 
+                            onPress={() => remove(index)}>
+                                <ThemedText type="smallBold">✕</ThemedText>
+                        </TouchableOpacity>
 
                         {/* name */}
-                        <ThemedView style={styles.fieldContainer}>
+                        <View style={formStyles.fieldContainer}>
                             <Controller
                                 name={`ingredients.${index}.name` as const}
                                 control={control}
@@ -60,12 +59,12 @@ export default function FormListIngredients({ control }: IngredientsSectionProps
                                         onBlur={onBlur}
                                         onChangeText={onChange}
                                         value={value}
-                                        style={styles.inputField} />
+                                        style={formStyles.inputField} />
                                 )} />
-                        </ThemedView>
+                        </View>
                         
                         {/* quantity */}
-                        <ThemedView style={styles.fieldContainer}>
+                        <View style={formStyles.fieldContainer}>
                             <Controller
                                 name={`ingredients.${index}.quantity` as const}
                                 control={control}
@@ -84,12 +83,12 @@ export default function FormListIngredients({ control }: IngredientsSectionProps
                                         }}
                                         value={value !== null && value !== undefined ? String(value) : ''}
                                         keyboardType="numeric"
-                                        style={styles.inputField} />
+                                        style={formStyles.inputField} />
                                 )} />
-                        </ThemedView>
+                        </View>
 
                         {/* unit */}
-                        <ThemedView style={styles.fieldContainer}>
+                        <View style={formStyles.fieldContainer}>
                             <Controller
                                 name={`ingredients.${index}.unit` as const}
                                 control={control}
@@ -102,40 +101,36 @@ export default function FormListIngredients({ control }: IngredientsSectionProps
                                         onBlur={onBlur}
                                         onChangeText={onChange}
                                         value={value}
-                                        style={styles.inputField} />
+                                        style={formStyles.inputField} />
                                 )} />
-                        </ThemedView>
-                    </ThemedView>
+                        </View>
+                    </View>
                 );
             })}
             
-        </ThemedView>
+            <View style={styles.rowContainer}>
+                <TouchableOpacity 
+                    style={formStyles.addButton} 
+                    onPress={() => append({ id: randomUUID(),  name: "", quantity: 1, unit:"" })}>
+                        <ThemedText type="smallBold">+</ThemedText>
+                </TouchableOpacity>
+
+                <ThemedText type="smallBold"> Add an ingredient</ThemedText>
+            </View>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    sectionContainer: {
-        flexDirection: "column",
-        flexGrow: 1,
-        backgroundColor: "white",
-        gap: 5
+    listItemContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: Spacing.two
     },
     rowContainer: {
         flexDirection: 'row',
         alignItems: "center",
         gap: Spacing.two,
         paddingHorizontal: Spacing.one,
-    },
-    elementContainer: {
-        flexDirection: 'row',
-    },
-    fieldContainer: {
-        paddingHorizontal: Spacing.one,
-    },
-    inputField: {
-        borderColor: "black",
-        borderWidth: 1,
-        paddingLeft: Spacing.two,
-        paddingRight: Spacing.four
     },
 });

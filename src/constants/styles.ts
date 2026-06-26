@@ -10,9 +10,9 @@ export const elementColors = {
 } as const;
 
 export const backgroundColors = {
-    topBar: "#fcd396",
-    screen: '#faf0e6',
-    listContent: '#ffffff',
+    orange: "#fcd396",
+    lightOrange: '#faf0e6',
+    white: '#ffffff',
 } as const;
 
 export const globalStyles = StyleSheet.create({
@@ -33,7 +33,7 @@ export const globalStyles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-evenly',
-        backgroundColor: backgroundColors.topBar,
+        backgroundColor: backgroundColors.orange,
         paddingVertical: Spacing.two,
     
         zIndex: 999, // Guarantees it stays above scrolling content
@@ -43,7 +43,7 @@ export const globalStyles = StyleSheet.create({
     flatListContainer: {
         flexDirection: "column",
         flexGrow: 1,
-        backgroundColor: backgroundColors.screen,
+        backgroundColor: backgroundColors.lightOrange,
         paddingTop: Spacing.three,
         paddingHorizontal: Spacing.three,
     },

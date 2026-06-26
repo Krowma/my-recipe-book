@@ -1,11 +1,11 @@
 import { ThemedText } from "@/components/themed-text";
-import { ThemedView } from "@/components/themed-view";
+import { formStyles } from "@/constants/formStyle";
 import { Spacing } from "@/constants/theme";
 import { useTheme } from "@/hooks/use-theme";
 import { Ingredient, Instruction, Note, Recipe, Tag } from "@/types/recipe.types";
 import { randomUUID } from 'expo-crypto';
 import { Control, Controller, useFieldArray } from 'react-hook-form';
-import { Button, StyleSheet, TextInput } from 'react-native';
+import { StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 
 
 interface RecipeFormValues {
@@ -32,17 +32,18 @@ export default function FormListNotes({ control }: NotesSectionProps) {
     
 
     return(
-        <ThemedView style={styles.sectionContainer}>
-            <ThemedView style={styles.rowContainer}>
-                <ThemedText>Notes</ThemedText>
-                <Button title=" + " onPress={() => append({ id: randomUUID(),  content: "", created_at: "" })} />
-            </ThemedView>
-            
+        <View style={formStyles.sectionContainer}> 
             {fields.map((field, index) => {
                 return (
-                    <ThemedView key={field.id} style={styles.elementContainer}> 
+                    <View key={field.id} style={styles.listItemContainer}> 
+                        <TouchableOpacity 
+                            style={formStyles.deleteButton} 
+                            onPress={() => remove(index)}>
+                                <ThemedText type="smallBold">✕</ThemedText>
+                        </TouchableOpacity>
+
                         {/* content */}
-                        <ThemedView style={styles.fieldContainer}>
+                        <View style={formStyles.fieldContainer}>
                             <Controller
                                 name={`notes.${index}.content` as const}
                                 control={control}
@@ -60,15 +61,22 @@ export default function FormListNotes({ control }: NotesSectionProps) {
                                         value={value}
                                         style={styles.largeTextInputField} />
                                 )} />
-                        </ThemedView>
-
-                        {/* Button to remove this specific object */}
-                        <Button title="X" onPress={() => remove(index)} />
-                    </ThemedView>
+                        </View>
+                    </View>
                 );
             })}
+
+            <View style={styles.rowContainer}>
+                <TouchableOpacity 
+                    style={formStyles.addButton} 
+                    onPress={() => append({ id: randomUUID(),  content: "", created_at: "" })}>
+                        <ThemedText type="smallBold">+</ThemedText>
+                </TouchableOpacity>
+
+                <ThemedText type="smallBold"> Add a note</ThemedText>
+            </View>
             
-        </ThemedView>
+        </View>
     );
 }
 
@@ -85,23 +93,18 @@ const styles = StyleSheet.create({
         gap: Spacing.two,
         paddingHorizontal: Spacing.one,
     },
-    elementContainer: {
+    listItemContainer: {
         flexDirection: 'row',
-        alignItems: "center",
+        alignItems: 'center',
+        gap: Spacing.two
     },
-    fieldContainer: {
-        gap: Spacing.two,
-        paddingHorizontal: Spacing.one,
-        borderBlockColor: "black",
-        flex: 1,
-    },
+
     largeTextInputField: {
         flex: 1,
-        borderWidth: 1,
-        paddingLeft: Spacing.two,
         minHeight: 50,
         justifyContent: "flex-start",
         textAlignVertical: 'top',
-        flexDirection: "row"
+        flexDirection: "row",
+        minWidth: '85%'
     },
 });
