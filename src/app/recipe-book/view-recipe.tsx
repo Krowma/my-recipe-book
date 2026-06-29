@@ -1,6 +1,7 @@
 import { ThemedText } from '@/components/themed-text';
 import { backgroundColors, elementColors, globalStyles, iconSize } from '@/constants/styles';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
+import { eportToJsonFile } from '@/functions/json-exporter';
 import { useDatabaseRecipes } from '@/hooks/use-database-recipes';
 import Slider from '@expo/ui/community/slider';
 import { FontAwesomeFreeSolid } from "@react-native-vector-icons/fontawesome-free-solid";
@@ -8,6 +9,7 @@ import { Link, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-rout
 import Fraction from 'fraction.js';
 import { useCallback, useState } from 'react';
 import { FlatList, Image, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { showMessage } from 'react-native-flash-message';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 
@@ -69,6 +71,27 @@ export default function ViewRecipe() {
 
     const handleFavoriteCallback = () => {
         console.log(" FAVORITE feature not implemented");
+    }
+
+    const handleExportCallback = () => {
+        if(recipe)
+            eportToJsonFile(recipe, tags, ingredients, instructions, notes, onExportSuccess, onExportFailure);
+    }
+
+    const onExportSuccess = (message: any) => {
+        showMessage({
+            message: "Recipe exported.",
+            description: "The recipe has been exported to the selected folder.",
+            type: "success",
+        });
+    }
+
+    const onExportFailure = (message: any) => {
+        showMessage({
+            message: "Failed to export the recipe.",
+            description: "We weren't able to export the selected recipe.",
+            type: "danger",
+        });
     }
 
     /**  
@@ -174,6 +197,11 @@ export default function ViewRecipe() {
                         <FontAwesomeFreeSolid name="pen-to-square" size={ iconSize.default } color={ elementColors.black } />
                     </Pressable>
                 </Link>
+
+                <Pressable
+                    onPress={handleExportCallback}>
+                        <FontAwesomeFreeSolid name="file-arrow-up" size={ iconSize.default } color={ elementColors.black } />
+                </Pressable> 
             </View>
 
             { isInstructions && 

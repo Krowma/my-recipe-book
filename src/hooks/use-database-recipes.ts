@@ -1,11 +1,14 @@
 import { RECIPE_INGREDIENT_QUERIES, RECIPE_INSTRUCTION_QUERIES, RECIPE_NOTE_QUERIES, RECIPE_TAG_QUERIES } from '@/database/queries/details-queries';
 import { RECIPE_QUERIES } from '@/database/queries/recipe-queries';
+import { useDatabaseFormValidation } from '@/hooks/use-database-form-validation';
 import { Ingredient, Instruction, Note, Recipe, Tag } from '@/types/recipe.types';
 import { useSQLiteContext } from 'expo-sqlite';
 import { useCallback, useState } from 'react';
 
 export function useDatabaseRecipes() {
     const db = useSQLiteContext();
+    const { validateTags, validateIngredients } = useDatabaseFormValidation();
+    
     const [recipes, setRecipes] = useState<Recipe[]>([]);
     
     const [recipe, setRecipe] = useState<Recipe | null>();
@@ -97,6 +100,10 @@ export function useDatabaseRecipes() {
     const createRecipe = async (recipe: Recipe, tags: Tag[], ingredients: Ingredient[], instructions: Instruction[], notes: Note[]) => {
         try {
             await db.withTransactionAsync(async () => {
+                // Make sure ingredients and tags that already exist in the database use the correct id
+                await validateTags(tags);
+                await validateIngredients(ingredients);
+
                 await db.runAsync(RECIPE_QUERIES.INSERT_RECIPE, 
                     [recipe.id, recipe.name, recipe.image, recipe.serving_count, recipe.duration]);
 
@@ -119,7 +126,10 @@ export function useDatabaseRecipes() {
     const updateRecipe = async (recipe: Recipe, tags: Tag[], ingredients: Ingredient[], instructions: Instruction[], notes: Note[]) => {
         try {
             await db.withTransactionAsync(async () => {
-            
+                // Make sure ingredients and tags that already exist in the database use the correct id
+                await validateTags(tags);
+                await validateIngredients(ingredients);
+                
                 // 1. Update the main recipe
                 const recipeResult = await db.runAsync(RECIPE_QUERIES.UPDATE_RECIPE, 
                     [recipe.name, recipe.image, recipe.serving_count, recipe.duration, recipe.id]);

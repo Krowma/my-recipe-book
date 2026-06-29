@@ -9,22 +9,22 @@ export type Recipe = {
 }
 
 export type Tag = {
-    id: string,
+    id: string;
     name: string;
 }
 
 export type Unit = "" | "g" | "kg" | "ml" | "cups" | "ts";
 
 export type Ingredient = {
-    id: string,
+    id: string;
     name: string;
     quantity: number;
     unit: string;
 }
 
 export type Instruction = {
-    id: string,
-    step_number: number,
+    id: string;
+    step_number: number;
     description: string;
     has_timer: boolean;
     timer_duration: number;
@@ -36,7 +36,7 @@ export type Note = {
     created_at: string;
 }
 
-export interface RecipeFormValues {
+export interface RecipeObject {
     recipe: Recipe;
     tags: Tag[];
     ingredients: Ingredient[];

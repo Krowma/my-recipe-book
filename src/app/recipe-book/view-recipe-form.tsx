@@ -7,9 +7,8 @@ import FormListTags from "@/components/ui/form-list-tags";
 import { formStyles } from "@/constants/formStyle";
 import { elementColors, globalStyles, iconSize } from "@/constants/styles";
 import { BottomTabInset, Spacing } from "@/constants/theme";
-import { useDatabaseFormValidation } from "@/hooks/use-database-form-validation";
 import { useDatabaseRecipes } from "@/hooks/use-database-recipes";
-import { RecipeFormValues } from "@/types/recipe.types";
+import { RecipeObject } from "@/types/recipe.types";
 import { FontAwesomeFreeSolid } from "@react-native-vector-icons/fontawesome-free-solid";
 import { randomUUID } from 'expo-crypto';
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -24,7 +23,6 @@ export default function ViewRecipeForm() {
     const router = useRouter();
 
     const { recipe, tags, ingredients, instructions, notes, isLoading, fetchRecipeWithDetails, updateRecipe, createRecipe } = useDatabaseRecipes();
-    const { validateTags, validateIngredients } = useDatabaseFormValidation();
 
     const { recipeId } = useLocalSearchParams<{ recipeId: string; }>();
 
@@ -53,7 +51,7 @@ export default function ViewRecipeForm() {
     /**
      * React Hook Form
      */
-    const methods = useForm<RecipeFormValues>({ 
+    const methods = useForm<RecipeObject>({ 
         mode: "onBlur",
         values: {
             recipe: recipe || {
@@ -70,13 +68,7 @@ export default function ViewRecipeForm() {
         },
     });
 
-    const handleSubmitCallback = async (data: RecipeFormValues) => {
-        
-        // Make sure ingredients and tags that already exist in the database use the correct id
-        await validateTags(data.tags);
-        await validateIngredients(data.ingredients);
-
-        // Update recipe in the database
+    const handleSubmitCallback = async (data: RecipeObject) => {
         if(recipeId) {
             await updateRecipe(data.recipe, data.tags, data.ingredients, data.instructions, data.notes);
         }
@@ -86,13 +78,13 @@ export default function ViewRecipeForm() {
         }
     }
 
-    const onSubmit: SubmitHandler<RecipeFormValues> = (data) => {
+    const onSubmit: SubmitHandler<RecipeObject> = (data) => {
         //console.log("Recipe form submit successfully : ", JSON.stringify(data, null, 2));
         handleSubmitCallback(data);
         router.back();
     } 
 
-    const onSubmitFail: SubmitErrorHandler<RecipeFormValues> = (errors) => {
+    const onSubmitFail: SubmitErrorHandler<RecipeObject> = (errors) => {
         console.log("Recipe form submit failed : ", JSON.stringify(errors, null, 2));
     } 
 

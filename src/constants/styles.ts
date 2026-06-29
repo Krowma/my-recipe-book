@@ -57,4 +57,7 @@ export const globalStyles = StyleSheet.create({
 
 
 
-export const iconSize = { default: 30 } as const;
+export const iconSize = { 
+    default: 30,
+    smaller: 20
+} as const;
