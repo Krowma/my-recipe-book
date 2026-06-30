@@ -7,6 +7,7 @@ export type Recipe = {
     serving_count: number;
     duration: number;
     is_cooking: number;
+    is_favorite: number;
 }
 
 export type Tag = {

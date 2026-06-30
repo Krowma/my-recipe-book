@@ -18,7 +18,7 @@ export default function ViewRecipe() {
 
     const router = useRouter();
 
-    const { recipe, tags, ingredients, instructions, notes, fetchRecipeWithDetails, changeRecipeCooking } = useDatabaseRecipes();
+    const { recipe, tags, ingredients, instructions, notes, fetchRecipeWithDetails, changeRecipeCooking, changeRecipeFavorite } = useDatabaseRecipes();
 
     const { recipeId } = useLocalSearchParams<{ recipeId: string; }>();
 
@@ -72,14 +72,13 @@ export default function ViewRecipe() {
      */
 
     const handleFavoriteCallback = () => {
-        console.log(" FAVORITE feature not implemented");
+        if(recipe)
+            changeRecipeFavorite(recipe.id, recipe.is_favorite === 0 ? 1 : 0);
     }
 
     const handleCookingCallback = () => {
-        if(recipe) {
+        if(recipe) 
             changeRecipeCooking(recipe.id, recipe.is_cooking === 0 ? 1 : 0);
-        }
-            
     }
 
     const handleExportCallback = () => {
@@ -201,7 +200,7 @@ export default function ViewRecipe() {
                         enabledColor={elementColors.red} 
                         disabledIcon={"heart-circle-plus"} 
                         disabledColor={elementColors.black}
-                        isEnabled={0}
+                        isEnabled={recipe?.is_favorite}
                         callback={handleFavoriteCallback}/>
                 }
 

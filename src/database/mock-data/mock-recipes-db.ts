@@ -24,7 +24,7 @@ export async function seedFakeData(count: number = 5) {
 
     await db.withTransactionAsync(async () => {
         const statement = await db.prepareAsync(
-            'INSERT INTO recipes (id, name, image, serving_count, duration, is_cooking) VALUES ($id, $name, $image, $serving_count, $duration, $is_cooking)'
+            'INSERT INTO recipes (id, name, image, serving_count, duration, is_cooking, is_favorite) VALUES ($id, $name, $image, $serving_count, $duration, $is_cooking, $is_favorite)'
         );
 
         const statement_tags = await db.prepareAsync(
@@ -71,7 +71,8 @@ export async function seedFakeData(count: number = 5) {
                     $image: imageOptions[faker.number.int({min:0, max: imageOptions.length - 1})],
                     $serving_count: faker.number.int({min:1, max:20}),
                     $duration: faker.number.int({min:15, max:360}),
-                    $is_cooking: false
+                    $is_cooking: false,
+                    $is_favorite: false
                 });
                 
                 await generateTags(db, recipe_id, tagIds, faker.number.int({min:1, max: tagIds.length}));

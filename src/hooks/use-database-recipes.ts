@@ -22,20 +22,27 @@ export function useDatabaseRecipes() {
     /**
      * Get all the recipes from the database.
      */
-    const fetchRecipes = useCallback(async (selectedTags : Tag[] = []) => {
+    const fetchRecipes = useCallback(async (filterFavorite: boolean, selectedTags : Tag[] = []) => {
         setIsLoading(true);
         try {
+            const favoriteParam = filterFavorite ? 1 : null; 
+
             let result : Recipe[] = [];
             if (selectedTags.length === 0) {
-                result = await db.getAllAsync<Recipe>(RECIPE_QUERIES.GET_ALL_RECIPES); // TODO will want to fetch by batch of x recipe in the future to handle big db
+                result = await db.getAllAsync<Recipe>(RECIPE_QUERIES.GET_ALL_RECIPES, [favoriteParam]); // TODO will want to fetch by batch of x recipe in the future to handle big db
                 /*result.map(e => {
                     console.log("recipe = { name:" + e.name + ", serv:" + e.serving_count + ", duration:" + e.duration + " }");
                 });*/
                 
             } else {
-                const placeholders = selectedTags.map(() => '?').join(', ');
-                const slectedTagIds = selectedTags.map((t) => t.id);
-                result = await db.getAllAsync<Recipe>(RECIPE_QUERIES.GET_RECIPES_WITH_TAGS(placeholders, selectedTags.length), slectedTagIds);
+                const sqlArgs: Record<string, any> = {
+                    $favoriteFilter: favoriteParam,
+                };
+                selectedTags.forEach((tag, index) => { sqlArgs[`$tag${index}`] = tag.id; });
+
+                const placeholders = selectedTags.map((_, index) => `$tag${index}`).join(', ');
+
+                result = await db.getAllAsync<Recipe>(RECIPE_QUERIES.GET_RECIPES_WITH_TAGS(placeholders, selectedTags.length), sqlArgs);
                 /*result.map(e => {
                     console.log("recipe = { name:" + e.name + ", serv:" + e.serving_count + ", duration:" + e.duration + " }");
                 });*/
@@ -58,9 +65,8 @@ export function useDatabaseRecipes() {
             let result = await db.getFirstAsync<Recipe>(RECIPE_QUERIES.GET_RECIPE_BY_ID, [recipeId]);
             setRecipe(result);
 
-            if(recipe)
-                console.log("recipe = { name:" + recipe.name + ", serv:" + recipe.serving_count + ", duration:" + recipe.duration + ", is_cooking:" + recipe.is_cooking + " }");
-
+            /*if(recipe)
+                console.log("recipe = { name:" + recipe.name + ", serv:" + recipe.serving_count + ", duration:" + recipe.duration + ", is_cooking:" + recipe.is_cooking + " }");*/
         } catch (error) {
             console.error("[db] Failed to fetch recipe with details: ", error);
         } finally {
@@ -84,8 +90,8 @@ export function useDatabaseRecipes() {
             ]);
 
             setRecipe(recipeResult);
-            if(recipeResult)
-                console.log("recipe = { name:" + recipeResult.name + ", serv:" + recipeResult.serving_count + ", duration:" + recipeResult.duration + ", is_cooking:" + recipeResult.is_cooking + " }");
+            /*if(recipeResult)
+                console.log("recipe = { name:" + recipeResult.name + ", serv:" + recipeResult.serving_count + ", duration:" + recipeResult.duration + ", is_cooking:" + recipeResult.is_cooking + " }");*/
 
             setTags(tagsResult);
             /*tagsResult.map(e => {
@@ -185,7 +191,6 @@ export function useDatabaseRecipes() {
     const deleteRecipe = async (id: string) => {
         try {
             await db.runAsync(RECIPE_QUERIES.DELETE_RECIPE, [id]);
-            await fetchRecipes();
         } catch (error) {
             console.error("[db] Failed to delete recipe", error);
         }
@@ -226,11 +231,24 @@ export function useDatabaseRecipes() {
         try {
             await db.runAsync(RECIPE_QUERIES.UPDATE_COOKING_RECIPE, [isCooking, recipeId]);
             await fetchRecipeShallow(recipeId);
-            console.log("[db] Recipe " + recipeId + " is_cooking successfully changed to " + isCooking);
+            //console.log("[db] Recipe " + recipeId + " is_cooking successfully changed to " + isCooking);
         } catch (error) {
             console.error('[db] Failed to change Recipe is_cooking.', error);
         }
     };
 
-    return { recipes, recipe, tags, ingredients, instructions, notes, isLoading, fetchRecipes, fetchRecipeWithDetails, createRecipe, updateRecipe, deleteRecipe, changeRecipeCooking };
+    /**
+     * Flag an existing recipe on the database as 'Favorite'
+     */
+    const changeRecipeFavorite = async (recipeId: string, isFavorite: number) => {
+        try {
+            await db.runAsync(RECIPE_QUERIES.UPDATE_FAVORITE_RECIPE, [isFavorite, recipeId]);
+            await fetchRecipeShallow(recipeId);
+            //console.log("[db] Recipe " + recipeId + " is_favorite successfully changed to " + isFavorite);
+        } catch (error) {
+            console.error('[db] Failed to change Recipe is_favorite.', error);
+        }
+    };
+
+    return { recipes, recipe, tags, ingredients, instructions, notes, isLoading, fetchRecipes, fetchRecipeWithDetails, createRecipe, updateRecipe, deleteRecipe, changeRecipeCooking, changeRecipeFavorite };
 }

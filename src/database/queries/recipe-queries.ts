@@ -4,6 +4,7 @@ export const RECIPE_QUERIES = {
     GET_ALL_RECIPES: `
         SELECT id, name, image, serving_count, duration 
             FROM recipes 
+            WHERE (?1 IS NULL OR is_favorite = ?1)
             ORDER BY name;
     `,
 
@@ -20,18 +21,25 @@ export const RECIPE_QUERIES = {
             WHERE id = ?;
     `,
 
+    UPDATE_FAVORITE_RECIPE:`
+        UPDATE recipes 
+            SET is_favorite = ?
+            WHERE id = ?;
+    `,
+
     GET_RECIPES_WITH_TAGS: (placeholders: string, tagCount: number) =>`
         SELECT r.id, r.name, r.image, r.serving_count, r.duration 
             FROM recipes r
             JOIN recipe_tags rt ON rt.recipe_id = r.id
             JOIN tags t ON rt.tag_id = t.id
-            WHERE t.id IN (${placeholders})
+            WHERE ($favoriteFilter IS NULL OR r.is_favorite = $favoriteFilter)
+            AND t.id IN (${placeholders})
             GROUP BY r.id
             HAVING COUNT(DISTINCT t.id) = ${tagCount};
     `,
 
     GET_RECIPE_BY_ID: `
-        SELECT id, name, image, serving_count, duration , is_cooking
+        SELECT id, name, image, serving_count, duration , is_cooking, is_favorite
             FROM recipes 
             WHERE id = ?;
     `,

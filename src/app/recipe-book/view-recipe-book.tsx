@@ -8,7 +8,7 @@ import { useDatabaseRecipes } from '@/hooks/use-database-recipes';
 import { Recipe, RecipeObject, Tag } from '@/types/recipe.types';
 import { FontAwesomeFreeSolid } from "@react-native-vector-icons/fontawesome-free-solid";
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { FlatList, Image, Platform, Pressable, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -22,6 +22,8 @@ export default function ViewRecipeBook() {
 
     const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
     const [isInDeleteMode, setIsInDeleteMode] = useState(false);
+    
+    const [isFilterFavorite, setIsFilterFavorite] = useState(false);
 
 
     /**
@@ -29,18 +31,9 @@ export default function ViewRecipeBook() {
      */
     useFocusEffect(
         useCallback(() => {
-            fetchRecipes();
-            return () => {
-                // Screen lost focus: Cleanup resources here
-            };
-        }, [])
+            fetchRecipes(isFilterFavorite, selectedTags);
+        }, [selectedTags, isFilterFavorite])
     );
-
-    useEffect(() => {
-        fetchRecipes(selectedTags);
-        
-        return () => { };
-    }, [selectedTags]);
     
     /**
      * Platform safe area
@@ -75,7 +68,7 @@ export default function ViewRecipeBook() {
     }
 
     const handleFavoritesCallback = () => {
-        console.log(" FAVORITE feature not implemented");
+        setIsFilterFavorite(!isFilterFavorite);
     }
 
     const enterRecipeCallback = () => {
@@ -88,7 +81,7 @@ export default function ViewRecipeBook() {
 
     const onImportSuccess = async (recipe: RecipeObject) => {
         await createRecipe(recipe.recipe, recipe.tags, recipe.ingredients, recipe.instructions, recipe.notes);
-        fetchRecipes(selectedTags);
+        fetchRecipes(isFilterFavorite, selectedTags);
         showMessage({
             message: "Recipe imported.",
             description: "The recipe has been imported and added to you Recipe Book.",
@@ -102,6 +95,11 @@ export default function ViewRecipeBook() {
             description: "We weren't able to add the selected recipe to your recipe book.",
             type: "danger",
         });
+    }
+
+    const handleDeleteCallback = async (recipe: Recipe) => {
+        await deleteRecipe(recipe.id);
+        await fetchRecipes(isFilterFavorite, selectedTags);
     }
 
     /**
@@ -133,8 +131,8 @@ export default function ViewRecipeBook() {
 
                 <Pressable
                     onPress={handleFavoritesCallback}>
-                    <FontAwesomeFreeSolid name="heart" size={ iconSize.default } color={ elementColors.red } />
-                </Pressable>
+                    <FontAwesomeFreeSolid name="heart" size={ iconSize.default } color={ isFilterFavorite ? elementColors.red : elementColors.black } />
+                </Pressable>                    
             </View>
 
             <View style={styles.filterContainer}>
@@ -154,7 +152,7 @@ export default function ViewRecipeBook() {
                         {isInDeleteMode && 
                             <TouchableOpacity 
                                 style={cardStyle.deleteButton} 
-                                onPress={() => deleteRecipe(item.id)}>
+                                onPress={() => handleDeleteCallback(item)}>
                                     <ThemedText type="smallBold">✕</ThemedText>
                             </TouchableOpacity>
                         }
@@ -185,7 +183,7 @@ const cardStyle = StyleSheet.create({
         minHeight: 150,
         maxHeight: 200,
         position: 'relative',
-        overflow: 'hidden',
+        //overflow: 'hidden',
         backgroundColor: backgroundColors.white
     },
 
@@ -213,6 +211,8 @@ const cardStyle = StyleSheet.create({
         borderRadius: 12,
         justifyContent: 'center',
         alignItems: 'center',
+        zIndex: 10,
+        elevation: 10, 
     },
 });
 

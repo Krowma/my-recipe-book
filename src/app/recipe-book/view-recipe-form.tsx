@@ -60,7 +60,8 @@ export default function ViewRecipeForm() {
                 image: "",
                 serving_count: 1,
                 duration: 0,
-                is_cooking: 0
+                is_cooking: 0,
+                is_favorite: 0
             }, 
             tags: tags || [],
             ingredients: ingredients || [],

@@ -47,6 +47,11 @@ export default function FilterBar({ selectedTags, setSelectedTags }: FilterBarPr
         clearSuggestions();
     };
 
+    const deleteTag = (tag: Tag) => {
+        const updatedTags = selectedTags.filter(t => t !== tag)
+        setSelectedTags(updatedTags);
+    }
+
     return(
         <View style={styles.filterBarContainer}>
             {/* Input to enter tags */}
@@ -85,7 +90,7 @@ export default function FilterBar({ selectedTags, setSelectedTags }: FilterBarPr
                     selectedTags.map((tag, index) => (
                         <View key={tag.id} style={styles.filterElement}>
                             <ThemedText type="small">{tag.name}</ThemedText>
-                            <TouchableOpacity onPress={() => setSelectedTags(selectedTags.filter(t => t !== tag))}>
+                            <TouchableOpacity onPress={() => deleteTag(tag)}>
                                 <ThemedText type="small"> ×</ThemedText>
                             </TouchableOpacity>    
                         </View>
