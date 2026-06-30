@@ -78,10 +78,6 @@ export default function ViewRecipeBook() {
         console.log(" FAVORITE feature not implemented");
     }
 
-    const handleCookingListCallback = () => {
-        console.log("COOKING LIST feature not implemented");
-    }
-
     const enterRecipeCallback = () => {
         router.push({ pathname: "/recipe-book/view-recipe-form" });
     }

@@ -1,4 +1,5 @@
 import { ThemedText } from '@/components/themed-text';
+import AnimatedToggleButton from '@/components/ui/animated-toggle-button';
 import { backgroundColors, elementColors, globalStyles, iconSize } from '@/constants/styles';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { eportToJsonFile } from '@/functions/json-exporter';
@@ -75,8 +76,10 @@ export default function ViewRecipe() {
     }
 
     const handleCookingCallback = () => {
-        if(recipe)
+        if(recipe) {
             changeRecipeCooking(recipe.id, recipe.is_cooking === 0 ? 1 : 0);
+        }
+            
     }
 
     const handleExportCallback = () => {
@@ -192,13 +195,25 @@ export default function ViewRecipe() {
                         <FontAwesomeFreeSolid name="chevron-circle-left" size={ iconSize.default } color={ elementColors.black } />
                 </Pressable> 
 
-                <Pressable onPress={handleFavoriteCallback}>
-                    <FontAwesomeFreeSolid name="heart" size={ iconSize.default } color={ elementColors.red } />
-                </Pressable>
+                {recipe && 
+                    <AnimatedToggleButton 
+                        enabledIcon={"heart"} 
+                        enabledColor={elementColors.red} 
+                        disabledIcon={"heart-circle-plus"} 
+                        disabledColor={elementColors.black}
+                        isEnabled={0}
+                        callback={handleFavoriteCallback}/>
+                }
 
-                <Pressable onPress={handleCookingCallback}>
-                    <FontAwesomeFreeSolid name="utensils" size={ iconSize.default } color={ recipe?.is_cooking === 0 ? elementColors.black : elementColors.red } />
-                </Pressable>
+                {recipe && 
+                    <AnimatedToggleButton 
+                        enabledIcon={"utensils"} 
+                        enabledColor={elementColors.honey} 
+                        disabledIcon={"utensils"} 
+                        disabledColor={elementColors.black}
+                        isEnabled={recipe?.is_cooking}
+                        callback={handleCookingCallback}/>
+                }
                 
                 <Link href={{ pathname:"/recipe-book/view-recipe-form", params: {recipeId: recipeId} }} asChild>
                     <Pressable>
