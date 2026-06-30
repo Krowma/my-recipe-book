@@ -139,11 +139,6 @@ export default function ViewRecipeBook() {
                     onPress={handleFavoritesCallback}>
                     <FontAwesomeFreeSolid name="heart" size={ iconSize.default } color={ elementColors.red } />
                 </Pressable>
-
-                <Pressable
-                    onPress={handleCookingListCallback}>
-                    <FontAwesomeFreeSolid name="utensils" size={ iconSize.default } color={ elementColors.black } />
-                </Pressable>
             </View>
 
             <View style={styles.filterContainer}>

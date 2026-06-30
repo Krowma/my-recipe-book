@@ -17,7 +17,7 @@ export default function ViewRecipe() {
 
     const router = useRouter();
 
-    const { recipe, tags, ingredients, instructions, notes, fetchRecipeWithDetails } = useDatabaseRecipes();
+    const { recipe, tags, ingredients, instructions, notes, fetchRecipeWithDetails, changeRecipeCooking } = useDatabaseRecipes();
 
     const { recipeId } = useLocalSearchParams<{ recipeId: string; }>();
 
@@ -25,6 +25,7 @@ export default function ViewRecipe() {
     const [servingSlider, setServingSlider] = useState(1);
 
     const imagePlaceholder = require('@/assets/images/image-not-found.png');
+    
 
     /**
      * Database
@@ -40,7 +41,7 @@ export default function ViewRecipe() {
             if(recipe) {
                 setServingSlider(recipe.serving_count);
             }
-        }, [recipe])
+        }, [recipe?.serving_count])
     );
 
     /**
@@ -71,6 +72,11 @@ export default function ViewRecipe() {
 
     const handleFavoriteCallback = () => {
         console.log(" FAVORITE feature not implemented");
+    }
+
+    const handleCookingCallback = () => {
+        if(recipe)
+            changeRecipeCooking(recipe.id, recipe.is_cooking === 0 ? 1 : 0);
     }
 
     const handleExportCallback = () => {
@@ -135,14 +141,14 @@ export default function ViewRecipe() {
 
                 {!isInstructions &&
                     <View style={sectionStyles.sliderContainer}> 
-                        <ThemedText type="smallBold">Servings {servingSlider}</ThemedText>
+                        <ThemedText type="smallBold" style={{width:'30%'}}>Servings {servingSlider}</ThemedText>
                         <Slider
                             style={sectionStyles.slider}
                             minimumValue={1}
                             maximumValue={20}
                             step={1}
                             value={servingSlider}
-                            onValueChange={(value : number) => setServingSlider(value)}
+                            onValueChange={(value : number) => setServingSlider(Math.round(value))}
                             minimumTrackTintColor={elementColors.honey}
                             maximumTrackTintColor={elementColors.grey}
                             thumbTintColor={elementColors.honey}
@@ -182,14 +188,16 @@ export default function ViewRecipe() {
     return(
         <View style={ [globalStyles.topLevelContainer, contentPlatformStyle] }>
             <View style={globalStyles.viewTopBar}>
-                <Pressable
-                    onPress={() => router.back()}>
+                <Pressable onPress={() => router.back()}>
                         <FontAwesomeFreeSolid name="chevron-circle-left" size={ iconSize.default } color={ elementColors.black } />
                 </Pressable> 
 
-                <Pressable
-                    onPress={handleFavoriteCallback}>
+                <Pressable onPress={handleFavoriteCallback}>
                     <FontAwesomeFreeSolid name="heart" size={ iconSize.default } color={ elementColors.red } />
+                </Pressable>
+
+                <Pressable onPress={handleCookingCallback}>
+                    <FontAwesomeFreeSolid name="utensils" size={ iconSize.default } color={ recipe?.is_cooking === 0 ? elementColors.black : elementColors.red } />
                 </Pressable>
                 
                 <Link href={{ pathname:"/recipe-book/view-recipe-form", params: {recipeId: recipeId} }} asChild>
@@ -303,8 +311,7 @@ const sectionStyles = StyleSheet.create({
         maxWidth: MaxContentWidth,
     },
     slider: {
-        width: MaxContentWidth * 0.3,
-        
+        width: '70%'
     },
 });
 

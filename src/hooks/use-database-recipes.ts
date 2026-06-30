@@ -50,7 +50,26 @@ export function useDatabaseRecipes() {
     }, [db]);
 
     /**
-     * Get a specific recipe from the database.
+     * Get a specific recipe from the database without the details.
+     */
+    const fetchRecipeShallow = useCallback(async (recipeId : string) => {
+        setIsLoading(true);
+        try {
+            let result = await db.getFirstAsync<Recipe>(RECIPE_QUERIES.GET_RECIPE_BY_ID, [recipeId]);
+            setRecipe(result);
+
+            if(recipe)
+                console.log("recipe = { name:" + recipe.name + ", serv:" + recipe.serving_count + ", duration:" + recipe.duration + ", is_cooking:" + recipe.is_cooking + " }");
+
+        } catch (error) {
+            console.error("[db] Failed to fetch recipe with details: ", error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [db]);
+
+    /**
+     * Get a specific recipe from the database with the associated details.
      */
     const fetchRecipeWithDetails = useCallback(async (recipeId : string) => {
         setIsLoading(true);
@@ -65,6 +84,8 @@ export function useDatabaseRecipes() {
             ]);
 
             setRecipe(recipeResult);
+            if(recipeResult)
+                console.log("recipe = { name:" + recipeResult.name + ", serv:" + recipeResult.serving_count + ", duration:" + recipeResult.duration + ", is_cooking:" + recipeResult.is_cooking + " }");
 
             setTags(tagsResult);
             /*tagsResult.map(e => {
@@ -121,7 +142,8 @@ export function useDatabaseRecipes() {
 
 
     /**
-     * Create a new recipe on the database with associated details (ingredients, instructions, ...).
+     * update an existing recipe on the database with associated details (ingredients, instructions, ...).
+     * Will delete the associated details and re-create them with their updated values
      */
     const updateRecipe = async (recipe: Recipe, tags: Tag[], ingredients: Ingredient[], instructions: Instruction[], notes: Note[]) => {
         try {
@@ -197,5 +219,18 @@ export function useDatabaseRecipes() {
         }
     };
 
-    return { recipes, recipe, tags, ingredients, instructions, notes, isLoading, fetchRecipes, fetchRecipeWithDetails, createRecipe, updateRecipe, deleteRecipe };
+    /**
+     * Flag an existing recipe on the database as 'Cooking'
+     */
+    const changeRecipeCooking = async (recipeId: string, isCooking: number) => {
+        try {
+            await db.runAsync(RECIPE_QUERIES.UPDATE_COOKING_RECIPE, [isCooking, recipeId]);
+            await fetchRecipeShallow(recipeId);
+            console.log("[db] Recipe " + recipeId + " is_cooking successfully changed to " + isCooking);
+        } catch (error) {
+            console.error('[db] Failed to change Recipe is_cooking.', error);
+        }
+    };
+
+    return { recipes, recipe, tags, ingredients, instructions, notes, isLoading, fetchRecipes, fetchRecipeWithDetails, createRecipe, updateRecipe, deleteRecipe, changeRecipeCooking };
 }

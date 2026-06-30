@@ -10,7 +10,8 @@ export const RECIPE_SCHEMA = `
         name TEXT NOT NULL,
         image TEXT,
         serving_count INTEGER,
-        duration INTEGER
+        duration INTEGER,
+        is_cooking INTEGER DEFAULT 0
     );
 
     CREATE TABLE IF NOT EXISTS tags (

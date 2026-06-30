@@ -59,7 +59,8 @@ export default function ViewRecipeForm() {
                 name: "",
                 image: "",
                 serving_count: 1,
-                duration: 0
+                duration: 0,
+                is_cooking: 0
             }, 
             tags: tags || [],
             ingredients: ingredients || [],
@@ -76,12 +77,13 @@ export default function ViewRecipeForm() {
             data.recipe.id = randomUUID();
             await createRecipe(data.recipe, data.tags, data.ingredients, data.instructions, data.notes);
         }
+
+        router.back();
     }
 
     const onSubmit: SubmitHandler<RecipeObject> = (data) => {
         //console.log("Recipe form submit successfully : ", JSON.stringify(data, null, 2));
         handleSubmitCallback(data);
-        router.back();
     } 
 
     const onSubmitFail: SubmitErrorHandler<RecipeObject> = (errors) => {

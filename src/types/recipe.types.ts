@@ -6,6 +6,7 @@ export type Recipe = {
     image: string;
     serving_count: number;
     duration: number;
+    is_cooking: number;
 }
 
 export type Tag = {

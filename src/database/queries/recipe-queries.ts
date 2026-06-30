@@ -7,6 +7,19 @@ export const RECIPE_QUERIES = {
             ORDER BY name;
     `,
 
+    GET_ALL_COOKING_RECIPES: `
+        SELECT id, name, image, serving_count, duration 
+            FROM recipes 
+            WHERE is_cooking = 1
+            ORDER BY name;
+    `,
+
+    UPDATE_COOKING_RECIPE:`
+        UPDATE recipes 
+            SET is_cooking = ?
+            WHERE id = ?;
+    `,
+
     GET_RECIPES_WITH_TAGS: (placeholders: string, tagCount: number) =>`
         SELECT r.id, r.name, r.image, r.serving_count, r.duration 
             FROM recipes r
@@ -18,7 +31,7 @@ export const RECIPE_QUERIES = {
     `,
 
     GET_RECIPE_BY_ID: `
-        SELECT id, name, image, serving_count, duration 
+        SELECT id, name, image, serving_count, duration , is_cooking
             FROM recipes 
             WHERE id = ?;
     `,
