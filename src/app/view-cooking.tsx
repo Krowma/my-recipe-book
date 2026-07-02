@@ -1,25 +1,43 @@
 import { ThemedText } from '@/components/themed-text';
-import { backgroundColors, globalStyles } from '@/constants/styles';
+import { TimerText } from '@/components/ui/timer-text';
+import { backgroundColors, elementColors, globalStyles, iconSize } from '@/constants/styles';
 import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
 import { useDatabaseCooking } from '@/hooks/use-database-cooking';
 import { useDatabaseRecipes } from '@/hooks/use-database-recipes';
+import { useDatabaseTimers } from '@/hooks/use-database-timers';
 import { Recipe } from '@/types/recipe.types';
+import FontAwesomeFreeSolid from '@react-native-vector-icons/fontawesome-free-solid';
 import { router, useFocusEffect } from 'expo-router';
-import { useCallback } from 'react';
-import { FlatList, Platform, Pressable, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useCallback, useEffect, useState } from 'react';
+import { FlatList, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import strftime from 'strftime';
 
 
 export default function ViewCooking() {
 
     const { cookingRecipes, fetchCookingRecipes } = useDatabaseCooking();
     const { changeRecipeCooking } = useDatabaseRecipes();
+    const { allTimers, fetchAllTimers, deleteTimerById, deleteTimerByRecipe } = useDatabaseTimers();
+
+    const [now, setNow] = useState(Date.now());
 
     useFocusEffect(
         useCallback(() => {
             fetchCookingRecipes();
+            fetchAllTimers();
         }, [])
     );
+
+    useEffect(() => {
+        if (allTimers.length === 0) return;
+
+        const interval = setInterval(() => {
+            setNow(Date.parse(strftime('%Y-%m-%dT%H:%M:%SZ')));
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [allTimers]);
 
     /**
      * Platform safe area
@@ -56,11 +74,11 @@ export default function ViewCooking() {
     }
 
     const handleClearAllTimers = (recipeId: string) => {
-        console.log(" Clear All Timers feature not implemented");
+        deleteTimerByRecipe(recipeId);
     }
 
-    const handleClearTimer = (recipeId: string, stepId: string) => {
-        console.log(" STOP TIMER feature not implemented");
+    const handleClearTimer = (timerId: string) => {
+        deleteTimerById(timerId);
     }
 
 
@@ -93,17 +111,24 @@ export default function ViewCooking() {
                             </View>
                             
 
-                            {/*TODO show active timers here*/}
-                            <View style={ timerStyles.timerContainer }>
-                                <TouchableOpacity 
-                                    style={timerStyles.deleteButton} 
-                                    onPress={() => handleClearTimer(item.id, "1")}>
-                                        <ThemedText type="smallBold">✕</ThemedText>
-                                </TouchableOpacity>
-                                
-                                <ThemedText type='default'>Step 1. </ThemedText>
-                                <ThemedText type='default'>35 mins remaining</ThemedText>
-                            </View>
+                            { allTimers.map((timer, index) => {
+                                    if(timer.recipe_id !== item.id) { return null; }
+
+                                    return (
+                                        <View key={index} style={ recipeStyles.timerContainer }>
+                                            <FontAwesomeFreeSolid name="clock" size={ iconSize.smaller } color={ elementColors.black } />
+                                    
+                                            <TimerText timer={timer} duration={timer.duration} nowMs={now} style={recipeStyles.timerText}/>
+                                        
+                                            <Pressable onPress={() => handleClearTimer(timer.id)}>
+                                                <FontAwesomeFreeSolid 
+                                                    name={ "stop" } 
+                                                    size={ iconSize.smaller } 
+                                                    color={ elementColors.red } />
+                                            </Pressable> 
+                                        </View>
+                                    )
+                            })}
                             
                             <View style={ styles.separationLine } />
                         </View>
@@ -135,6 +160,15 @@ const recipeStyles = StyleSheet.create({
     nameButton: {
         width: '55%',
     },
+    timerContainer: {
+        flexDirection: 'row',
+        gap: Spacing.two,
+        paddingLeft: Spacing.three
+    },
+    timerText: {
+        width: '40%',
+        paddingRight: Spacing.three
+    }
 });
 
 const timerStyles = StyleSheet.create({

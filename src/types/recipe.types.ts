@@ -38,10 +38,23 @@ export type Note = {
     created_at: string;
 }
 
+export type Timer = {
+    id: string;
+    recipe_id: string;
+    instruction_id: string;
+    started_at: string;
+    duration: number;
+}
+
 export interface RecipeObject {
     recipe: Recipe;
     tags: Tag[];
     ingredients: Ingredient[];
     instructions: Instruction[];
     notes: Note[];
+}
+
+export interface TimerState {
+    id: String;
+    timeRemaining: number;
 }

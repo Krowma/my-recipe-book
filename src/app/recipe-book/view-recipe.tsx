@@ -1,17 +1,21 @@
 import { ThemedText } from '@/components/themed-text';
 import AnimatedToggleButton from '@/components/ui/animated-toggle-button';
+import { TimerText } from '@/components/ui/timer-text';
 import { backgroundColors, elementColors, globalStyles, iconSize } from '@/constants/styles';
 import { MaxContentWidth, Spacing } from '@/constants/theme';
 import { eportToJsonFile } from '@/functions/json-exporter';
 import { useDatabaseRecipes } from '@/hooks/use-database-recipes';
+import { useDatabaseTimers } from '@/hooks/use-database-timers';
+import { Instruction } from '@/types/recipe.types';
 import Slider from '@expo/ui/community/slider';
 import { FontAwesomeFreeSolid } from "@react-native-vector-icons/fontawesome-free-solid";
 import { Link, useFocusEffect, useLocalSearchParams, useRouter } from 'expo-router';
 import Fraction from 'fraction.js';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FlatList, Image, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import strftime from 'strftime';
 
 
 export default function ViewRecipe() {
@@ -21,9 +25,11 @@ export default function ViewRecipe() {
     const { recipe, tags, ingredients, instructions, notes, fetchRecipeWithDetails, changeRecipeCooking, changeRecipeFavorite } = useDatabaseRecipes();
 
     const { recipeId } = useLocalSearchParams<{ recipeId: string; }>();
+    const { recipeTimers, getTimerForInstruction, fetchAllRecipeTimers, createTimer, deleteTimerByInstruction } = useDatabaseTimers();
 
     const [isInstructions, setIsInstructions] = useState(false);
     const [servingSlider, setServingSlider] = useState(1);
+    const [now, setNow] = useState(Date.now());
 
     const imagePlaceholder = require('@/assets/images/image-not-found.png');
     
@@ -34,6 +40,7 @@ export default function ViewRecipe() {
     useFocusEffect(
         useCallback(() => {
             fetchRecipeWithDetails(recipeId);
+            fetchAllRecipeTimers(recipeId);
         }, [])
     );
 
@@ -44,6 +51,16 @@ export default function ViewRecipe() {
             }
         }, [recipe?.serving_count])
     );
+
+    useEffect(() => {
+        if (recipeTimers.length === 0 || !isInstructions) return;
+
+        const interval = setInterval(() => {
+            setNow(Date.parse(strftime('%Y-%m-%dT%H:%M:%SZ')));
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [recipeTimers, isInstructions]);
 
     /**
      * Platform safe area
@@ -100,6 +117,19 @@ export default function ViewRecipe() {
             description: "We weren't able to export the selected recipe.",
             type: "danger",
         });
+    }
+
+    const handleTimerCallback = async (instruction: Instruction) => {
+        if(!recipe)
+            return;
+
+        if(getTimerForInstruction(instruction.id)) {
+            console.log("Delete");
+            await deleteTimerByInstruction(recipe.id, instruction.id);
+        }
+        else {
+            await createTimer(recipe.id, instruction);
+        }
     }
 
     /**  
@@ -240,7 +270,18 @@ export default function ViewRecipe() {
                                 <ThemedText style={{ color: elementColors.honey }}>{item.step_number}.</ThemedText> 
                                 <ThemedText>{item.description}</ThemedText>
                             </View>
-                            { Boolean(item.has_timer) && <ThemedText style={{ paddingLeft: Spacing.five }}>Timer {item.timer_duration} min</ThemedText> }
+                            { Boolean(item.has_timer) && <View style={ sectionStyles.timerContainer }>
+                                <FontAwesomeFreeSolid name="clock" size={ iconSize.smaller } color={ elementColors.black } />
+
+                                <TimerText timer={getTimerForInstruction(item.id)} duration={item.timer_duration} nowMs={now} style={sectionStyles.timerText}/>
+
+                                <Pressable onPress={() => handleTimerCallback(item)}>
+                                    <FontAwesomeFreeSolid 
+                                        name={ getTimerForInstruction(item.id) ? "stop" : "play" } 
+                                        size={ iconSize.smaller } 
+                                        color={ getTimerForInstruction(item.id) ? elementColors.red : elementColors.honey } />
+                                </Pressable> 
+                            </View> }
                             <View style={ sectionStyles.itemLine } />
                         </View>
                     )} /> 
@@ -327,6 +368,16 @@ const sectionStyles = StyleSheet.create({
     slider: {
         width: '70%'
     },
+
+    timerContainer: {
+        flexDirection: 'row',
+        gap: Spacing.two,
+        paddingLeft: Spacing.three
+    },
+    timerText: {
+        width: '40%',
+        paddingRight: Spacing.three
+    }
 });
 
 const styles = StyleSheet.create({

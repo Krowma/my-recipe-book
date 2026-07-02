@@ -49,6 +49,7 @@ export default function ViewSettings() {
                 DELETE FROM recipe_ingredients;
                 DELETE FROM instructions;
                 DELETE FROM notes;
+                DELETE FROM timers;
                 VACUUM;
             `);
             await db.execAsync('PRAGMA user_version = 0');

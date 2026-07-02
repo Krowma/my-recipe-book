@@ -18,9 +18,9 @@ export function useDatabaseCooking() {
         setIsLoading(true);
         try {
             let result = await db.getAllAsync<Recipe>(RECIPE_QUERIES.GET_ALL_COOKING_RECIPES);
-            result.map(e => {
+            /*result.map(e => {
                 console.log("recipe = { name:" + e.name + ", serv:" + e.serving_count + ", duration:" + e.duration + " }");
-            });
+            });*/
 
             setcookingRecipes(result);
         } catch (error) {

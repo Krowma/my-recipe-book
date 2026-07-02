@@ -149,7 +149,7 @@ async function generateInstructions(db: SQLiteDatabase, recipe_id: string, count
                 $step_number: i+1,
                 $description: faker.lorem.sentence({min:3, max:10}),
                 $has_timer: faker.datatype.boolean(),
-                $timer_duration: faker.number.int({min:1, max:30}),
+                $timer_duration: faker.number.int({min:1, max:120}),
                 $recipe_id: recipe_id,
             });
         }

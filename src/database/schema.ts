@@ -60,4 +60,14 @@ export const RECIPE_SCHEMA = `
         recipe_id TEXT NOT NULL,
         FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE CASCADE
     );
+
+    CREATE TABLE IF NOT EXISTS timers (
+        id TEXT PRIMARY KEY NOT NULL,
+        recipe_id TEXT NOT NULL,
+        instruction_id TEXT NOT NULL,
+        duration INTEGER  NOT NULL,
+        started_at TEXT DEFAULT (datetime('now')), 
+        FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE CASCADE
+        FOREIGN KEY (instruction_id) REFERENCES instructions(id) ON DELETE CASCADE
+    );
 `;
