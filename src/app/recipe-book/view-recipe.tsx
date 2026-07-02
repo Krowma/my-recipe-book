@@ -73,12 +73,12 @@ export default function ViewRecipe() {
 
     const handleFavoriteCallback = () => {
         if(recipe)
-            changeRecipeFavorite(recipe.id, recipe.is_favorite === 0 ? 1 : 0);
+            changeRecipeFavorite(recipe.id, !Boolean(recipe.is_favorite));
     }
 
     const handleCookingCallback = () => {
         if(recipe) 
-            changeRecipeCooking(recipe.id, recipe.is_cooking === 0 ? 1 : 0);
+            changeRecipeCooking(recipe.id, !Boolean(recipe.is_cooking));
     }
 
     const handleExportCallback = () => {

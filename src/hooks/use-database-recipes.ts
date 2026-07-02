@@ -227,9 +227,9 @@ export function useDatabaseRecipes() {
     /**
      * Flag an existing recipe on the database as 'Cooking'
      */
-    const changeRecipeCooking = async (recipeId: string, isCooking: number) => {
+    const changeRecipeCooking = async (recipeId: string, newValue: boolean) => {
         try {
-            await db.runAsync(RECIPE_QUERIES.UPDATE_COOKING_RECIPE, [isCooking, recipeId]);
+            await db.runAsync(RECIPE_QUERIES.UPDATE_COOKING_RECIPE, [Number(newValue), recipeId]);
             await fetchRecipeShallow(recipeId);
             //console.log("[db] Recipe " + recipeId + " is_cooking successfully changed to " + isCooking);
         } catch (error) {
@@ -240,9 +240,9 @@ export function useDatabaseRecipes() {
     /**
      * Flag an existing recipe on the database as 'Favorite'
      */
-    const changeRecipeFavorite = async (recipeId: string, isFavorite: number) => {
+    const changeRecipeFavorite = async (recipeId: string, isFavorite: boolean) => {
         try {
-            await db.runAsync(RECIPE_QUERIES.UPDATE_FAVORITE_RECIPE, [isFavorite, recipeId]);
+            await db.runAsync(RECIPE_QUERIES.UPDATE_FAVORITE_RECIPE, [Number(isFavorite), recipeId]);
             await fetchRecipeShallow(recipeId);
             //console.log("[db] Recipe " + recipeId + " is_favorite successfully changed to " + isFavorite);
         } catch (error) {

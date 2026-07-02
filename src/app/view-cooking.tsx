@@ -51,7 +51,7 @@ export default function ViewCooking() {
     }
 
     const handleRemoveRecipe = async (recipeId: string) => {
-        await changeRecipeCooking(recipeId, 0);
+        await changeRecipeCooking(recipeId, false);
         await fetchCookingRecipes();
     }
 
