@@ -124,7 +124,6 @@ export default function ViewRecipe() {
             return;
 
         if(getTimerForInstruction(instruction.id)) {
-            console.log("Delete");
             await deleteTimerByInstruction(recipe.id, instruction.id);
         }
         else {

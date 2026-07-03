@@ -5,7 +5,7 @@ import { BottomTabInset, MaxContentWidth, Spacing } from "@/constants/theme";
 import { useDatabaseCooking } from '@/hooks/use-database-cooking';
 import { useDatabaseRecipes } from '@/hooks/use-database-recipes';
 import { useDatabaseTimers } from '@/hooks/use-database-timers';
-import { Recipe } from '@/types/recipe.types';
+import { Recipe, Timer } from '@/types/recipe.types';
 import FontAwesomeFreeSolid from '@react-native-vector-icons/fontawesome-free-solid';
 import { router, useFocusEffect } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
@@ -77,8 +77,8 @@ export default function ViewCooking() {
         deleteTimerByRecipe(recipeId);
     }
 
-    const handleClearTimer = (timerId: string) => {
-        deleteTimerById(timerId);
+    const handleClearTimer = (timer: Timer) => {
+        deleteTimerById(timer);
     }
 
 
@@ -120,7 +120,7 @@ export default function ViewCooking() {
                                     
                                             <TimerText timer={timer} duration={timer.duration} nowMs={now} style={recipeStyles.timerText}/>
                                         
-                                            <Pressable onPress={() => handleClearTimer(timer.id)}>
+                                            <Pressable onPress={() => handleClearTimer(timer)}>
                                                 <FontAwesomeFreeSolid 
                                                     name={ "stop" } 
                                                     size={ iconSize.smaller } 

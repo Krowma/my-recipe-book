@@ -66,7 +66,8 @@ export const RECIPE_SCHEMA = `
         recipe_id TEXT NOT NULL,
         instruction_id TEXT NOT NULL,
         duration INTEGER  NOT NULL,
-        started_at TEXT DEFAULT (datetime('now')), 
+        started_at TEXT DEFAULT (datetime('now')),
+        notif_id TEXT, 
         FOREIGN KEY (recipe_id) REFERENCES recipes(id) ON DELETE CASCADE
         FOREIGN KEY (instruction_id) REFERENCES instructions(id) ON DELETE CASCADE
     );

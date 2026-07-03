@@ -7,8 +7,9 @@ import { importFromJsonFile } from '@/functions/json-exporter';
 import { useDatabaseRecipes } from '@/hooks/use-database-recipes';
 import { Recipe, RecipeObject, Tag } from '@/types/recipe.types';
 import { FontAwesomeFreeSolid } from "@react-native-vector-icons/fontawesome-free-solid";
+import * as Notifications from 'expo-notifications';
 import { useFocusEffect, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { FlatList, Image, Platform, Pressable, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -25,6 +26,22 @@ export default function ViewRecipeBook() {
     
     const [isFilterFavorite, setIsFilterFavorite] = useState(false);
 
+    
+    /**
+     * Notification permission
+     */
+    useEffect(() => {
+        async function requestPermissions() {
+            const { status } = await Notifications.getPermissionsAsync()
+            if(status !== 'granted') { // todo save if player seen popup to only show on first launch
+                await Notifications.requestPermissionsAsync();
+                prompt('You can alway change the notification permission in the app settings.');
+            }
+        }
+
+        requestPermissions();
+    }, []);
+
 
     /**
      * Database
@@ -34,6 +51,7 @@ export default function ViewRecipeBook() {
             fetchRecipes(isFilterFavorite, selectedTags);
         }, [selectedTags, isFilterFavorite])
     );
+
     
     /**
      * Platform safe area

@@ -1,4 +1,5 @@
 import { TIMERS_QUERIES } from '@/database/queries/timers-queries';
+import { cancelNotification, scheduleNotification } from '@/functions/timer-notification';
 import { Instruction, Timer } from '@/types/recipe.types';
 import { randomUUID } from 'expo-crypto';
 import { useSQLiteContext } from 'expo-sqlite';
@@ -38,7 +39,8 @@ export function useDatabaseTimers() {
 
     const createTimer = async (recipeId: string, instruction: Instruction) => {
         try {
-            await db.runAsync(TIMERS_QUERIES.INSERT_TIMER, [randomUUID(), recipeId, instruction.id, instruction.timer_duration, strftime('%Y-%m-%dT%H:%M:%SZ')]);
+            const notifId = await scheduleNotification(instruction.timer_duration * 60, "TEST MESSAGE");
+            await db.runAsync(TIMERS_QUERIES.INSERT_TIMER, [randomUUID(), recipeId, instruction.id, instruction.timer_duration, strftime('%Y-%m-%dT%H:%M:%SZ'), notifId]);
             await fetchAllRecipeTimers(recipeId);
         } catch (error) {
             console.error("[db] Failed to create recipe timers :", error);
@@ -47,11 +49,10 @@ export function useDatabaseTimers() {
 
     const deleteTimerByInstruction = async (recipeId: string, instructionId: string) => {
         try {
-            recipeTimers.map(e => console.log("Timers :" + e.duration));
             const timer = recipeTimers.find(e => e.instruction_id == instructionId);
             if(timer)
             {
-                console.log("Delete :" + timer.duration);
+                await cancelNotification(timer.notif_id);
                 await db.runAsync(TIMERS_QUERIES.DELETE_TIMER, timer.id);
                 await fetchAllRecipeTimers(recipeId);
             }
@@ -60,9 +61,10 @@ export function useDatabaseTimers() {
         }
     };
 
-    const deleteTimerById = async (timerId: string) => {
+    const deleteTimerById = async (timer: Timer) => {
         try {
-            await db.runAsync(TIMERS_QUERIES.DELETE_TIMER, timerId);
+            await cancelNotification(timer.notif_id);
+            await db.runAsync(TIMERS_QUERIES.DELETE_TIMER, timer.id);
             await fetchAllTimers();
         } catch (error) {
             console.error("[db] Failed to delete recipe timer :", error);
@@ -72,8 +74,10 @@ export function useDatabaseTimers() {
     const deleteTimerByRecipe = async (recipeId: string) => {
         try {
             for(const timer of allTimers) {
-                if(timer.recipe_id === recipeId)
+                if(timer.recipe_id === recipeId) {
+                    await cancelNotification(timer.notif_id);
                     await db.runAsync(TIMERS_QUERIES.DELETE_TIMER, timer.id);
+                }
             }
             
             await fetchAllTimers();

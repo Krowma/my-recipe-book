@@ -82,7 +82,7 @@ export default function FormListInstructions({ control }: InstructionsSectionPro
                                         value={value} />
                                 )} />
 
-                            { /*hasTimer &&*/ <Controller
+                            <Controller
                                 name={`instructions.${index}.timer_duration` as const}
                                 control={control}
                                 rules={{ required: true }}
@@ -101,7 +101,7 @@ export default function FormListInstructions({ control }: InstructionsSectionPro
                                         value={value !== null && value !== undefined ? String(value) : ''}
                                         keyboardType="numeric"
                                         style={formStyles.inputField} />
-                                )} /> }
+                                )} />
                         </View>
                     </View>
                 );

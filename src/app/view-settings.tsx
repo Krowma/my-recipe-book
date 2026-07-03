@@ -2,6 +2,7 @@ import { ThemedText } from '@/components/themed-text';
 import { globalStyles } from '@/constants/styles';
 import { BottomTabInset, Spacing } from "@/constants/theme";
 import { setupDatabase } from '@/database/setup';
+import * as Notifications from 'expo-notifications';
 import * as SQLite from 'expo-sqlite';
 import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -33,8 +34,8 @@ export default function ViewSettings() {
         },
     });
 
-    const sendToDeviceNotification = () => {
-        console.log("[Nt] Not implemented : sendToDeviceNotification");
+    const sendToDeviceNotification = async () => {
+        await Notifications.requestPermissionsAsync();
     }
 
     const resetDatabase = async () => {

@@ -104,9 +104,10 @@ export function useDatabaseRecipes() {
             });*/
 
             setInstructions(instructionsResult);
-            /*instructionsResult.map(e => {
-                    console.log("instructions = { step: " + e.step_number + ", desc: " + e.description + ", has_timer: " + e.has_timer + ", timer_duration: " + e.timer_duration + " }");
-            });*/
+            instructionsResult.map(e => {
+                e.has_timer = Boolean(e.has_timer);
+                //console.log("instructions = { step: " + e.step_number + ", desc: " + e.description + ", has_timer: " + e.has_timer + ", timer_duration: " + e.timer_duration + " }");
+            });
 
             setNotes(notesResult);
             /*notesResult.map(e => {

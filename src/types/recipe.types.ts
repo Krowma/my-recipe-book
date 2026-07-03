@@ -44,6 +44,7 @@ export type Timer = {
     instruction_id: string;
     started_at: string;
     duration: number;
+    notif_id: string;
 }
 
 export interface RecipeObject {
@@ -52,9 +53,4 @@ export interface RecipeObject {
     ingredients: Ingredient[];
     instructions: Instruction[];
     notes: Note[];
-}
-
-export interface TimerState {
-    id: String;
-    timeRemaining: number;
 }

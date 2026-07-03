@@ -2,13 +2,13 @@
 
 export const TIMERS_QUERIES = {
     GET_ALL_TIMERS: `
-        SELECT id, recipe_id, instruction_id, duration, started_at
+        SELECT id, recipe_id, instruction_id, duration, started_at, notif_id
             FROM timers
             ORDER BY recipe_id;
     `,
 
     GET_ALL_RECIPE_TIMERS: `
-        SELECT id, instruction_id, duration, started_at 
+        SELECT id, instruction_id, duration, started_at, notif_id 
             FROM timers 
             WHERE recipe_id = ?;
     `,
@@ -20,8 +20,8 @@ export const TIMERS_QUERIES = {
     `,
 
     INSERT_TIMER:`
-        INSERT INTO timers (id, recipe_id, instruction_id, duration, started_at)
-            VALUES (?, ?, ?, ?, ?)
+        INSERT INTO timers (id, recipe_id, instruction_id, duration, started_at, notif_id)
+            VALUES (?, ?, ?, ?, ?, ?)
             ON CONFLICT(id) DO NOTHING;
     `,
 
