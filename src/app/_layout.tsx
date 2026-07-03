@@ -3,8 +3,9 @@ import AppTabs from '@/components/app-tabs';
 import { setupDatabase } from '@/database/setup';
 import * as Notifications from 'expo-notifications';
 import { AndroidNotificationPriority } from 'expo-notifications';
-import { DarkTheme, DefaultTheme, ThemeProvider } from 'expo-router';
+import { DarkTheme, DefaultTheme, Href, ThemeProvider, useRouter } from 'expo-router';
 import { SQLiteProvider } from 'expo-sqlite';
+import { useEffect } from 'react';
 import { Platform, StatusBar, useColorScheme } from 'react-native';
 import FlashMessage from 'react-native-flash-message';
 
@@ -22,6 +23,27 @@ Notifications.setNotificationHandler({
 
 export default function TabLayout() {
     const colorScheme = useColorScheme();
+
+    const router = useRouter();
+
+    useEffect(() => {
+        // 1. Handle notifications when the app is already open/backgrounded
+        const subscription = Notifications.addNotificationResponseReceivedListener(response => {
+            const url: Href = String(response.notification.request.content.data?.url) as Href;
+            if (url)
+                router.push(url);
+        });
+
+        // 2. Handle notifications that caused a closed app to open (Cold Start)
+        const response = Notifications.getLastNotificationResponse(); 
+        if(response?.notification) {
+            const url: Href = String(response?.notification.request.content.data?.url) as Href;
+            if (url)
+                router.push(url);
+        }
+        
+        return () => subscription.remove();
+    }, []);
     
     return (
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>

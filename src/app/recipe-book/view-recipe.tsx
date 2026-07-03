@@ -24,7 +24,7 @@ export default function ViewRecipe() {
 
     const { recipe, tags, ingredients, instructions, notes, fetchRecipeWithDetails, changeRecipeCooking, changeRecipeFavorite } = useDatabaseRecipes();
 
-    const { recipeId } = useLocalSearchParams<{ recipeId: string; }>();
+    const { recipeId, openInstruction } = useLocalSearchParams<{ recipeId: string; openInstruction: string; }>();
     const { recipeTimers, getTimerForInstruction, fetchAllRecipeTimers, createTimer, deleteTimerByInstruction } = useDatabaseTimers();
 
     const [isInstructions, setIsInstructions] = useState(false);
@@ -33,14 +33,15 @@ export default function ViewRecipe() {
 
     const imagePlaceholder = require('@/assets/images/image-not-found.png');
     
-
-    /**
-     * Database
-     */
     useFocusEffect(
         useCallback(() => {
             fetchRecipeWithDetails(recipeId);
             fetchAllRecipeTimers(recipeId);
+            
+            if(openInstruction) {
+                const isOpenInstruction: boolean = openInstruction.toLowerCase() === "true"; 
+                setIsInstructions(isOpenInstruction);
+            }
         }, [])
     );
 
@@ -127,7 +128,8 @@ export default function ViewRecipe() {
             await deleteTimerByInstruction(recipe.id, instruction.id);
         }
         else {
-            await createTimer(recipe.id, instruction);
+            await createTimer(recipe.id, instruction, "Recipe: " + recipe.name + " - Step: " + instruction.step_number);
+            await changeRecipeCooking(recipe.id, true);
         }
     }
 

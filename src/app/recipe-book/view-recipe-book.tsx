@@ -81,7 +81,7 @@ export default function ViewRecipeBook() {
     const handleRecipePressed = (recipe: Recipe) => {
         router.push({
             pathname: "/recipe-book/view-recipe",
-            params: {recipeId: recipe.id }
+            params: { recipeId: recipe.id }
         });
     }
 

@@ -37,9 +37,9 @@ export function useDatabaseTimers() {
         }
     }, [db]);
 
-    const createTimer = async (recipeId: string, instruction: Instruction) => {
+    const createTimer = async (recipeId: string, instruction: Instruction, message: string) => {
         try {
-            const notifId = await scheduleNotification(instruction.timer_duration * 60, "TEST MESSAGE");
+            const notifId = await scheduleNotification(instruction.timer_duration * 60, message, "recipe-book/view-recipe?recipeId=" + recipeId + "&openInstruction=true");
             await db.runAsync(TIMERS_QUERIES.INSERT_TIMER, [randomUUID(), recipeId, instruction.id, instruction.timer_duration, strftime('%Y-%m-%dT%H:%M:%SZ'), notifId]);
             await fetchAllRecipeTimers(recipeId);
         } catch (error) {
