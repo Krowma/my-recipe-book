@@ -51,7 +51,7 @@ export default function FormListNotes({ control }: NotesSectionProps) {
                                     <TextInput
                                         placeholder="Type your note here..."
                                         multiline={true}
-                                        numberOfLines={4}
+                                        numberOfLines={5}
                                         textAlignVertical="top"
                                         onBlur={onBlur}
                                         onChangeText={onChange}
@@ -102,6 +102,7 @@ const styles = StyleSheet.create({
         justifyContent: "flex-start",
         textAlignVertical: 'top',
         flexDirection: "row",
-        minWidth: '85%'
+        maxWidth: '85%',
+        minWidth: '75%',
     },
 });

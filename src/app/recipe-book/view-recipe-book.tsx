@@ -1,16 +1,15 @@
 import { ThemedText } from '@/components/themed-text';
 import FloatingCircleMenu, { CircleMenuItem } from '@/components/ui/circle-menu';
 import FilterBar from '@/components/ui/filter-bar';
-import { backgroundColors, elementColors, globalStyles, iconSize } from '@/constants/styles';
+import { backgroundColors, elementColors, globalStyles } from '@/constants/styles';
 import { BottomTabInset, Spacing } from "@/constants/theme";
 import { importFromJsonFile } from '@/functions/json-exporter';
 import { useDatabaseRecipes } from '@/hooks/use-database-recipes';
 import { Recipe, RecipeObject, Tag } from '@/types/recipe.types';
-import { FontAwesomeFreeSolid } from "@react-native-vector-icons/fontawesome-free-solid";
 import * as Notifications from 'expo-notifications';
 import { useFocusEffect, useRouter } from 'expo-router';
 import { useCallback, useEffect, useState } from 'react';
-import { FlatList, Image, Platform, Pressable, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { Alert, FlatList, Image, Platform, Pressable, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { showMessage } from 'react-native-flash-message';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -34,8 +33,17 @@ export default function ViewRecipeBook() {
         async function requestPermissions() {
             const { status } = await Notifications.getPermissionsAsync()
             if(status !== 'granted') { // todo save if player seen popup to only show on first launch
-                await Notifications.requestPermissionsAsync();
-                prompt('You can alway change the notification permission in the app settings.');
+                const {status} = await Notifications.requestPermissionsAsync();
+                Alert.alert(
+                    'Notifications '+status,
+                    'You can alway change the notification permission in the app settings.',
+                    [{
+                            text: 'OK',
+                            onPress: () => console.log('Cancel Pressed'),
+                            style: 'cancel',
+                    }],
+                    { cancelable: true }
+                );
             }
         }
 
@@ -147,14 +155,14 @@ export default function ViewRecipeBook() {
             <View style={globalStyles.viewTopBar}>
                <FloatingCircleMenu items={ addRecipeMenuOption }/>
 
-                <Pressable
+                {/*<Pressable
                     onPress={handleFavoritesCallback}>
                     <FontAwesomeFreeSolid name="heart" size={ iconSize.default } color={ isFilterFavorite ? elementColors.red : elementColors.black } />
-                </Pressable>                    
+                </Pressable>*/}
             </View>
 
             <View style={styles.filterContainer}>
-                <FilterBar selectedTags={selectedTags} setSelectedTags={setSelectedTags}/>
+                <FilterBar selectedTags={selectedTags} setSelectedTags={setSelectedTags} favoritesCallback={handleFavoritesCallback} isFavoriteFilterOn={isFilterFavorite}/>
                 <View style={{ borderBottomColor: 'black', borderBottomWidth: StyleSheet.hairlineWidth, marginHorizontal: Spacing.three, paddingVertical: Spacing.two}} />
             </View>
             

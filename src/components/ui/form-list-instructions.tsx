@@ -144,6 +144,7 @@ const styles = StyleSheet.create({
         paddingLeft: Spacing.two,
         minHeight: 50,
         minWidth: '75%',
+        maxWidth: '80%',
         justifyContent: "flex-start",
         textAlignVertical: 'top',
         flexDirection: "row",

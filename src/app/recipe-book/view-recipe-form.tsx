@@ -101,18 +101,11 @@ export default function ViewRecipeForm() {
 
     return(
         <View style={[globalStyles.topLevelContainer, contentPlatformStyle]}>
-            <View style={ globalStyles.viewTitleContainer }>
-                <ThemedText type="subtitle">Edit your Recipe</ThemedText>
-            </View>
-
-            <View style={styles.viewTopBar}>
+            <View style={ styles.recipeNameContainer }>
                 <Pressable onPress={() => router.back()}>
-                    <FontAwesomeFreeSolid name="chevron-circle-left" size={ iconSize.default } color={ elementColors.black } />
-                </Pressable> 
-
-                <Pressable onPress={methods.handleSubmit(onSubmit, onSubmitFail)}>
-                    <FontAwesomeFreeSolid name="check-circle" size={ iconSize.default } color={ elementColors.blue } />
-                </Pressable> 
+                    <FontAwesomeFreeSolid name="chevron-left" size={ iconSize.default } color={ elementColors.black } />
+                </Pressable>
+                <ThemedText type="subtitle">Edit your Recipe</ThemedText>
             </View>
 
             <ScrollView 
@@ -215,18 +208,32 @@ export default function ViewRecipeForm() {
                     </View>
                 </FormProvider>
             </ScrollView>
+
+            <Pressable onPress={methods.handleSubmit(onSubmit, onSubmitFail)} style={styles.validationButton}>
+                <FontAwesomeFreeSolid name="check-circle" size={ iconSize.default } color={ elementColors.blue } />
+            </Pressable> 
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    viewTopBar: {
-        marginHorizontal: Spacing.three,
-        borderRadius: 20,
+    recipeNameContainer: {
+        flexDirection: "row",
+        flex:1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: Spacing.three,
+        paddingHorizontal: Spacing.three,
+        paddingBottom: Spacing.two,
+    },
+
+    validationButton: {
+        marginHorizontal: Spacing.six,
+        borderRadius: 10,
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-evenly',
-        backgroundColor: '#c19c36',
+        backgroundColor: '#e5c97b',
         paddingVertical: Spacing.two,
     
         zIndex: 999, // Guarantees it stays above scrolling content

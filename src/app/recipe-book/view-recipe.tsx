@@ -145,7 +145,43 @@ export default function ViewRecipe() {
                         style={styles.recipeImage} />
                 </View>
 
+                <View style={styles.iconBar}>
+                    {recipe && 
+                        <AnimatedToggleButton 
+                            enabledIcon={"heart"} 
+                            enabledColor={elementColors.red} 
+                            disabledIcon={"heart-circle-plus"} 
+                            disabledColor={elementColors.black}
+                            isEnabled={recipe?.is_favorite}
+                            callback={handleFavoriteCallback}/>
+                    }
+
+                    {recipe && 
+                        <AnimatedToggleButton 
+                            enabledIcon={"utensils"} 
+                            enabledColor={elementColors.honey} 
+                            disabledIcon={"utensils"} 
+                            disabledColor={elementColors.black}
+                            isEnabled={recipe?.is_cooking}
+                            callback={handleCookingCallback}/>
+                    }
+                    
+                    <Link href={{ pathname:"/recipe-book/view-recipe-form", params: {recipeId: recipeId} }} asChild>
+                        <Pressable>
+                            <FontAwesomeFreeSolid name="pen-to-square" size={ iconSize.default } color={ elementColors.black } />
+                        </Pressable>
+                    </Link>
+
+                    <Pressable
+                        onPress={handleExportCallback}>
+                            <FontAwesomeFreeSolid name="file-arrow-up" size={ iconSize.default } color={ elementColors.black } />
+                    </Pressable> 
+                </View>
+
                 <View style={styles.recipeNameContainer}>
+                    <Pressable onPress={() => router.back()}>
+                        <FontAwesomeFreeSolid name="chevron-left" size={ iconSize.default } color={ elementColors.black } />
+                    </Pressable> 
                     <ThemedText type="subtitle" style={styles.recipeName}>{ recipe? recipe.name : "" }</ThemedText> 
                 </View>
 
@@ -220,43 +256,6 @@ export default function ViewRecipe() {
     
     return(
         <View style={ [globalStyles.topLevelContainer, contentPlatformStyle] }>
-            <View style={globalStyles.viewTopBar}>
-                <Pressable onPress={() => router.back()}>
-                        <FontAwesomeFreeSolid name="chevron-circle-left" size={ iconSize.default } color={ elementColors.black } />
-                </Pressable> 
-
-                {recipe && 
-                    <AnimatedToggleButton 
-                        enabledIcon={"heart"} 
-                        enabledColor={elementColors.red} 
-                        disabledIcon={"heart-circle-plus"} 
-                        disabledColor={elementColors.black}
-                        isEnabled={recipe?.is_favorite}
-                        callback={handleFavoriteCallback}/>
-                }
-
-                {recipe && 
-                    <AnimatedToggleButton 
-                        enabledIcon={"utensils"} 
-                        enabledColor={elementColors.honey} 
-                        disabledIcon={"utensils"} 
-                        disabledColor={elementColors.black}
-                        isEnabled={recipe?.is_cooking}
-                        callback={handleCookingCallback}/>
-                }
-                
-                <Link href={{ pathname:"/recipe-book/view-recipe-form", params: {recipeId: recipeId} }} asChild>
-                    <Pressable>
-                        <FontAwesomeFreeSolid name="pen-to-square" size={ iconSize.default } color={ elementColors.black } />
-                    </Pressable>
-                </Link>
-
-                <Pressable
-                    onPress={handleExportCallback}>
-                        <FontAwesomeFreeSolid name="file-arrow-up" size={ iconSize.default } color={ elementColors.black } />
-                </Pressable> 
-            </View>
-
             { isInstructions && 
                 <FlatList
                     style={ globalStyles.flatListContainer }
@@ -383,9 +382,19 @@ const sectionStyles = StyleSheet.create({
 
 const styles = StyleSheet.create({
     recipeNameContainer: {
+        flexDirection: "row",
         flex:1,
+        alignItems: 'center',
+        gap: Spacing.two,
         paddingHorizontal: Spacing.three,
         paddingBottom: Spacing.two,
+    },
+
+    iconBar: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-evenly',
+        paddingVertical: Spacing.two,
     },
 
     recipeName: {

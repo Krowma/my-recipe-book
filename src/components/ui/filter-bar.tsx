@@ -1,19 +1,22 @@
 import { ThemedText } from '@/components/themed-text';
-import { elementColors } from '@/constants/styles';
+import { elementColors, iconSize } from '@/constants/styles';
 import { Spacing } from '@/constants/theme';
 import { useDatabaseFilters } from "@/hooks/use-database-filters";
 import { Tag } from '@/types/recipe.types';
+import { FontAwesomeFreeSolid } from "@react-native-vector-icons/fontawesome-free-solid";
 import { useEffect, useState } from "react";
-import { FlatList, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
+import { FlatList, Pressable, StyleSheet, TextInput, TouchableOpacity, View } from 'react-native';
 
 
 interface FilterBarProps {
     selectedTags: Tag[];
     setSelectedTags: React.Dispatch<React.SetStateAction<Tag[]>>;
+    favoritesCallback: () => void;
+    isFavoriteFilterOn: boolean;
 }
 
 
-export default function FilterBar({ selectedTags, setSelectedTags }: FilterBarProps) {
+export default function FilterBar({ selectedTags, setSelectedTags, favoritesCallback, isFavoriteFilterOn }: FilterBarProps) {
     const { suggestions, fetchMatchingTags, clearSuggestions } = useDatabaseFilters();
 
     const [input, setInput] = useState<string>('');
@@ -54,37 +57,44 @@ export default function FilterBar({ selectedTags, setSelectedTags }: FilterBarPr
 
     return(
         <View style={styles.filterBarContainer}>
-            {/* Input to enter tags */}
-            <View style={styles.inputWrapper}>
-                <TextInput
-                    style={styles.input}
-                    placeholder="Type to search..."
-                    value={input}
-                    onChangeText={setInput}
-                    onSubmitEditing={() => addTag(input)}
-                />
+            <View style={styles.filterInputContainer}>
+                {/* Input to enter tags */}
+                <View style={styles.textInputWrapper}>
+                    <TextInput
+                        style={styles.input}
+                        placeholder="Type to search..."
+                        value={input}
+                        onChangeText={setInput}
+                        onSubmitEditing={() => addTag(input)}
+                    />
 
-                {/* Autocomplete Dropdown */}
-                {suggestions.length > 0 && (
-                    <View style={styles.dropdown}>
-                        <FlatList
-                            data={suggestions}
-                            keyExtractor={(item) => item.name}
-                            keyboardShouldPersistTaps="handled"
-                            renderItem={({ item }) => (
-                                <TouchableOpacity 
-                                    style={styles.dropdownItem} 
-                                    onPress={() => addTag(item.name)}>
-                                    <ThemedText type="small">{item.name}</ThemedText>
-                                </TouchableOpacity>
-                            )}
-                        />
-                    </View>
-                )}
-            </View>
+                    {/* Autocomplete Dropdown */}
+                    {suggestions.length > 0 && (
+                        <View style={styles.dropdown}>
+                            <FlatList
+                                data={suggestions}
+                                keyExtractor={(item) => item.name}
+                                keyboardShouldPersistTaps="handled"
+                                renderItem={({ item }) => (
+                                    <TouchableOpacity 
+                                        style={styles.dropdownItem} 
+                                        onPress={() => addTag(item.name)}>
+                                        <ThemedText type="small">{item.name}</ThemedText>
+                                    </TouchableOpacity>
+                                )}
+                            />
+                        </View>
+                    )}
+                </View>
+
+                <Pressable
+                    onPress={favoritesCallback}>
+                    <FontAwesomeFreeSolid name="heart" size={ iconSize.default } color={ isFavoriteFilterOn ? elementColors.red : elementColors.black } />
+                </Pressable> 
+            </View> 
 
             {/* Display selected tags */}
-            <View style={styles.filtersContainer}>
+            <View style={styles.tagsContainer}>
                 <ThemedText type="default">Filter by :</ThemedText>
                 {
                     selectedTags.map((tag, index) => (
@@ -108,7 +118,7 @@ const styles = StyleSheet.create({
         gap: Spacing.three,
         paddingHorizontal: Spacing.four,
     },
-    filtersContainer: {
+    tagsContainer: {
         flexDirection: "row",
         gap: Spacing.one,
         alignItems: 'center',
@@ -125,9 +135,16 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
 
-    inputWrapper: {
+    filterInputContainer: {
+        flexDirection: "row",
+        gap: Spacing.three,
+        alignItems: 'center',
+    },
+
+    textInputWrapper: {
         zIndex: 10, // Keeps dropdown floating over content below it
         position: 'relative',
+        minWidth: '85%',
     },
     input: {
         height: 48,

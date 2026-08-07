@@ -2,9 +2,8 @@ import { ThemedText } from '@/components/themed-text';
 import { globalStyles } from '@/constants/styles';
 import { BottomTabInset, Spacing } from "@/constants/theme";
 import { setupDatabase } from '@/database/setup';
-import * as Notifications from 'expo-notifications';
 import * as SQLite from 'expo-sqlite';
-import { Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Linking, Platform, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 
@@ -35,7 +34,7 @@ export default function ViewSettings() {
     });
 
     const sendToDeviceNotification = async () => {
-        await Notifications.requestPermissionsAsync();
+        Linking.openSettings();
     }
 
     const resetDatabase = async () => {
@@ -92,7 +91,7 @@ export default function ViewSettings() {
                     </View>
 
                     <Pressable onPress={ sendToDeviceNotification }>
-                        <ThemedText>Enable notifications</ThemedText>
+                        <ThemedText>Open device settings</ThemedText>
                     </Pressable>
                 </View>
                     

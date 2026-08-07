@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "My Recipes",
+    "name": "Recipes",
     "slug": "my-recipe-book",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/appIcon/app-icon.png",
     "scheme": "myrecipebook",
-    "userInterfaceStyle": "automatic",
+    "userInterfaceStyle": "light",
     "ios": {
       "icon": "./assets/expo.icon"
     },
