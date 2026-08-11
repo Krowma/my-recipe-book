@@ -101,16 +101,16 @@ export default function ViewRecipeForm() {
 
     return(
         <View style={[globalStyles.topLevelContainer, contentPlatformStyle]}>
-            <View style={ styles.recipeNameContainer }>
-                <Pressable onPress={() => router.back()}>
-                    <FontAwesomeFreeSolid name="chevron-left" size={ iconSize.default } color={ elementColors.black } />
-                </Pressable>
-                <ThemedText type="subtitle">Edit your Recipe</ThemedText>
-            </View>
-
             <ScrollView 
                 style={ globalStyles.flatListContainer } 
                 contentContainerStyle={ [styles.scrollView, {paddingBottom: 300}] } >
+
+                <View style={ styles.recipeNameContainer }>
+                    <Pressable onPress={() => router.back()}>
+                        <FontAwesomeFreeSolid name="chevron-left" size={ iconSize.default } color={ elementColors.black } />
+                    </Pressable>
+                    <ThemedText type="subtitle">Edit your Recipe</ThemedText>
+                </View>
 
                 <FormProvider {...methods} >
                     <View style={styles.formContainer}>

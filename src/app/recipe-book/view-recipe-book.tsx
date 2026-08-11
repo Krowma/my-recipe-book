@@ -1,5 +1,6 @@
+import FloatingActionMenu from '@/components/FAB/floating-action-menu';
+import { ButonContent } from '@/components/FAB/floating-action-subbutton';
 import { ThemedText } from '@/components/themed-text';
-import FloatingCircleMenu, { CircleMenuItem } from '@/components/ui/circle-menu';
 import FilterBar from '@/components/ui/filter-bar';
 import { backgroundColors, elementColors, globalStyles } from '@/constants/styles';
 import { BottomTabInset, Spacing } from "@/constants/theme";
@@ -134,9 +135,9 @@ export default function ViewRecipeBook() {
     const numColumns = 2;
     const imagePlaceholder = require('@/assets/images/image-not-found.png');
 
-    const addRecipeMenuOption: CircleMenuItem[] = [
-        {iconName: "pen", iconColor: elementColors.black, callback: enterRecipeCallback},
-        {iconName: "file-arrow-down", iconColor: elementColors.black, callback: importRecipeCallback},
+    const addFloatingMenuOption: ButonContent[] = [
+        {text: "Manual", iconName: "pen", iconColor: elementColors.black, callback: enterRecipeCallback},
+        {text: "Import", iconName: "file-arrow-down", iconColor: elementColors.black, callback: importRecipeCallback},
     ]
 
     function listFooter() {
@@ -152,13 +153,8 @@ export default function ViewRecipeBook() {
                 <ThemedText type="subtitle">Recipe Book</ThemedText>
             </View>
 
-            <View style={globalStyles.viewTopBar}>
-               <FloatingCircleMenu items={ addRecipeMenuOption }/>
-
-                {/*<Pressable
-                    onPress={handleFavoritesCallback}>
-                    <FontAwesomeFreeSolid name="heart" size={ iconSize.default } color={ isFilterFavorite ? elementColors.red : elementColors.black } />
-                </Pressable>*/}
+            <View style={styles.floatingMenu}>
+                <FloatingActionMenu items={ addFloatingMenuOption }/>
             </View>
 
             <View style={styles.filterContainer}>
@@ -265,5 +261,9 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
         elevation: 5,
+    },
+
+    floatingMenu: {
+        zIndex: 11
     },
 });

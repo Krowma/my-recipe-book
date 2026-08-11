@@ -8,6 +8,7 @@ import { SQLiteProvider } from 'expo-sqlite';
 import { useEffect } from 'react';
 import { Platform, StatusBar, useColorScheme } from 'react-native';
 import FlashMessage from 'react-native-flash-message';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 const SAFE_AREA_OFFSET = Platform.OS === 'ios' ? 45 : (StatusBar.currentHeight || 40);
 
@@ -48,11 +49,13 @@ export default function TabLayout() {
     return (
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
             <SQLiteProvider databaseName="recipebook.db" onInit={setupDatabase} useSuspense>
-                <AnimatedSplashOverlay />
-                <AppTabs />
-                <FlashMessage 
-                    position={{ top: SAFE_AREA_OFFSET }} 
-                    statusBarHeight={Platform.OS === 'android' ? StatusBar.currentHeight : undefined} />
+                <GestureHandlerRootView>
+                    <AnimatedSplashOverlay />
+                    <AppTabs />
+                    <FlashMessage 
+                        position={{ top: SAFE_AREA_OFFSET }} 
+                        statusBarHeight={Platform.OS === 'android' ? StatusBar.currentHeight : undefined} />
+                </GestureHandlerRootView>
             </SQLiteProvider>
         </ThemeProvider>
     );
