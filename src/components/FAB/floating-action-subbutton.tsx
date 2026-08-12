@@ -27,14 +27,11 @@ export default function FloatingActionSubButton({ text, iconName, iconColor, cal
 
     return (
         <GestureDetector gesture={tapGesture}>
-            {/*<Animated.View style={styles.subButton}>*/}
             <View style={styles.subButton}>
                 <View style={styles.button}>
                     <FontAwesomeFreeSolid name={iconName} size={ iconSize.default } color={ iconColor } />
                 </View>
-                {/*<Text style={styles.label}>{text}</Text>*/}
             </View>
-            {/*</Animated.View>*/}
         </GestureDetector>
     );
 };

@@ -30,10 +30,6 @@ export default function FormListInstructions({ control }: InstructionsSectionPro
     return(
         <View style={formStyles.sectionContainer}>
             {fields.map((field, index) => {
-                /*const hasTimer = useWatch({
-                    control,
-                    name: `instructions.${index}.has_timer`,
-                });*/
                 return (
                     <View key={field.id} style={ styles.listItemContainer }> 
                         <View style={styles.rowContainer}>
