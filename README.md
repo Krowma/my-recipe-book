@@ -22,10 +22,12 @@ The goal of this project is to practice my JavaScript, React and SQL skills. As 
 The landing screen of the app, it presents the recipes in the database to the user in a scrollable list, by tapping one of the recipes the user can open its details screen. Only the recipes useful information (name, image, tags) are fetched from the database, the details (ingredients, instructions, …) are stored in separate tables.
 
 ### Filter Recipes
-To make it easier to choose a recipe, a search bar let the user filter the list of recipes using tags, only the recipes containing the entered tags will be fetched from the database. The user can also filter the list to only show the recipes marked as favorites.
+To make it easier to choose a recipe, a search bar let the user filter the list of recipes using tags, only the recipes containing the entered tags will be fetched from the database. The user can also filter the list to only show the recipes marked as favorites.\
+<img width="270" height="606" alt="Recipe-Book" src="https://github.com/user-attachments/assets/391dff29-9e03-4904-a51b-bc19c33ce6b5" />
 
 ## Recipe Details
-This screen let the user see the details of a recipe like the required ingredients (scalable with a slider representing the number of servings), the instructions or the notes added by the user. Those details are only fetched from the database when opening the Recipe Details screen to avoid cluttering the phone memory with unnecessary data.
+This screen let the user see the details of a recipe like the required ingredients (scalable with a slider representing the number of servings), the instructions or the notes added by the user. Those details are only fetched from the database when opening the Recipe Details screen to avoid cluttering the phone memory with unnecessary data.\
+<img width="270" height="606" alt="Recipe-Details" src="https://github.com/user-attachments/assets/4696ea9f-26fa-420b-b200-c6173d3cfbae" />
 
 ### Cooking Timers
 When a cooking instruction has a timer, it can be directly triggered from the instruction itself. If the user as granted the notification authorization to the app, they will receive a notification on their phone when the timer ends, even if the app is closed.
@@ -35,6 +37,7 @@ An edition screen using React Hook Form, let the user add a new recipe to the da
 
 ## Database
 The app uses a local SQLite database, it is composed of several tables to make it easier to only fetch the required data when it is needed without cluttering the phone memory.
+<img width="2036" height="604" alt="Recipe-Book_ERD" src="https://github.com/user-attachments/assets/26e6c2e0-47e2-4c47-8339-dfc8d19054ca" />
 
 # Set-up
 
