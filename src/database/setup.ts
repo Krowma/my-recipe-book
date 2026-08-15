@@ -7,11 +7,13 @@ export async function setupDatabase(db: SQLiteDatabase)
 {
     const DATABASE_VERSION = 1;
     
-    const USE_MOCK_DATA = true;
+    const USE_MOCK_DATA = false;
     const COUNT_MOCK_DATA = 10;
 
     const fetchResult = await db.getFirstAsync<{user_version: number}>('PRAGMA user_version;'); // fetch db metadata (PRAGMA) user_version
     let currentDbVersion = fetchResult?.user_version ?? 0;
+
+    //await db.execAsync('PRAGMA wal_checkpoint(FULL);');
 
     if (currentDbVersion >= DATABASE_VERSION) {
         // up to date : no migration needed

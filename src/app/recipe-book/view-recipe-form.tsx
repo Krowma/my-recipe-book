@@ -132,6 +132,23 @@ export default function ViewRecipeForm() {
                                     name="recipe.name" />
                             </View>
 
+                            {/* image */}
+                            <View style={styles.fieldContainer}>
+                                <ThemedText>Image URL </ThemedText>
+                                <Controller
+                                    control={methods.control}
+                                    rules={{ required: true }}
+                                    render={({ field: { onChange, onBlur, value } }) => (
+                                        <TextInput
+                                            placeholder="Image URL"
+                                            onBlur={onBlur}
+                                            onChangeText={onChange}
+                                            value={value}
+                                            style={formStyles.inputField} />
+                                    )}
+                                    name="recipe.image" />
+                            </View>
+
                             {/* servings */}
                             <View style={styles.fieldContainer}>
                                 <ThemedText>Number of servings </ThemedText>

@@ -48,7 +48,11 @@ export default function TabLayout() {
     
     return (
         <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-            <SQLiteProvider databaseName="recipebook.db" onInit={setupDatabase} useSuspense>
+            <SQLiteProvider 
+                databaseName="recipebook.db" 
+                assetSource={{ assetId: require('../../assets/database/recipebook.db') }} 
+                onInit={setupDatabase} 
+                useSuspense>
                 <GestureHandlerRootView>
                     <AnimatedSplashOverlay />
                     <AppTabs />
