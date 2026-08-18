@@ -51,5 +51,5 @@ You may end up with a build error if your folder structure is too nested because
 To enable the populating of the database with fake data, in the file *src/app/database/setup.ts* set *USE_MOCK_DATA* to true.
  
 # Releases
-[**v1.0.0**](https://github.com/Krowma/my-recipe-book/releases/tag/v1.0.0) - MVP (Recipe book and Recipe details screens, SQL database, Cooking timers).
+[**v1.0.0**](https://github.com/Krowma/my-recipe-book/releases/tag/v1.0.0) - MVP (Recipe book and Recipe details screens, SQL database, Cooking timers).\
 [**v1.0.1**](https://github.com/Krowma/my-recipe-book/releases/tag/v1.0.1) - MVP bug fixes
