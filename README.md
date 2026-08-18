@@ -40,6 +40,15 @@ The app uses a local SQLite database, it is composed of several tables to make i
 <img width="2036" height="604" alt="Recipe-Book_ERD" src="https://github.com/user-attachments/assets/26e6c2e0-47e2-4c47-8339-dfc8d19054ca" />
 
 # Set-up
+Download the project from GitHub
+In a CLI run : 
+- *npm install* to install all node packages
+- *npx expo prebuild* to generate the android files
+- *npx expo run:android* with a device connected to build and install the app\
 
+You may end up with a build error if your folder structure is too nested because Windows maximum full path to an object file is 250 characters. If that happens try moving the project folder closer to the C:\ or D:\ disk.
+
+To enable the populating of the database with fake data, in the file *src/app/database/setup.ts* set *USE_MOCK_DATA* to true.
+ 
 # Releases
 [**v1.0.0**](https://github.com/Krowma/my-recipe-book/releases/tag/v1.0.0) - MVP (Recipe book and Recipe details screens, SQL database, Cooking timers).
